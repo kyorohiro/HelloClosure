@@ -1,0 +1,15 @@
+<html>
+<header>
+  <script src="./closure-library/closure/goog/base.js"></script>
+  <!--script src="./mysrc/deps.js"></script-->
+  <script>
+    goog.require('goog.dom');
+    function start() {
+        var newHeader = goog.dom.createDom("h1", {"style":"background-color:#EEE"}, "Hello world!");
+        goog.dom.appendChild(document.body, newHeader);
+    }
+  </script>
+</head>
+<body onload="start()"></body>
+</body>
+</html>
