@@ -9,6 +9,7 @@ hetima.signal.SignalClient = function (url) {
 	this.addIceCandidate = function(v) {console.log("+++addIceCandidate()\n");}
 	this.startAnswerTransaction = function(v) {console.log("+++startAnswerTransaction()\n");}
 	this.onJoinNetwork = function(v) {console.log("+++onJoinNetwork(si)\n");}
+	this.onReceiveMessage = function(v) {console.log("+++onReceivceMessage("+v+")\n");}
     });
 
     this.setPeer = function(peer) {
@@ -31,6 +32,8 @@ hetima.signal.SignalClient = function (url) {
 	    this.mPeer.startAnswerTransaction("server",v);
 	} else if("candidate" == v.contentType){
 	    this.mPeer.addIceCandidate(v);
+	} else if("message" == v.contentType){
+	    this.mPeer.onReceiveMessage(v);
 	}
     };
 
@@ -40,12 +43,33 @@ hetima.signal.SignalClient = function (url) {
 
     this.join = function(from) {
 	console.log("::::::::::::::::join");
+	this.broadcastMessage(from,"hello","join");
+    };
+
+    this.broadcastMessage = function(from, content, contentType) {
+	console.log("::::::::::::::::broadcastMessage : from="+from+",content="+content);
+	if(contentType == undefined) {
+	    contentType = "message";
+	}
 	var v = {};
 	var b = {};
 	v["from"]        = from;
 	v["messageType"] = "broadcast";
-	b["contentType"] = "join";
-	b["body"]        = "hello";
+	b["contentType"] = contentType;
+	b["body"]        = content;
+	v["content"]     = b;
+	this.ws.send(JSON.stringify(v));
+    };
+
+    this.unicastMessage = function(to, from, content) {
+	console.log("::::::::::::::::unicastMessage : from="+from+",content="+content);
+	var v = {};
+	var b = {};
+	v["to"]          = to;
+	v["from"]        = from;
+	v["messageType"] = "unicast";
+	b["contentType"] = "message";
+	b["body"]        = content;
 	v["content"]     = b;
 	this.ws.send(JSON.stringify(v));
     };
@@ -93,7 +117,7 @@ hetima.signal.SignalClient = function (url) {
     this.ws.onmessage = function(m) {
 	console.log("::::::::::::::::pnmessage");
 	var parsedData = JSON.parse(m.data);
-	var contentType = parsedData["_contentType"];
+	var contentType = parsedData["contentType"];
 	var uuid = parsedData["_from"];
 	console.log("--onSignalClient#WS#OnMessage():"+contentType+","+uuid);
 	if("join" === contentType) {
