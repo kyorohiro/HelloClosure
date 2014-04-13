@@ -4,16 +4,18 @@ goog.require('hetima.util.Encoder');
 
 hetima.util.Bdecode = function (mode) {
     this.mode = mode;
-    this.decodeArrayBuffer = function(builder, start, length) {
+
+    this.decodeArrayBuffer = function(buffer, start, length) {
 	var calcParam = {};
 	calcParam.i = start;
 	calcParam.length = length;
-	calcParam.builder = builder;
+	calcParam.buffer = new Uint8Array(buffer);
 	return this._decodeArrayBuilder(calcParam);
     };
     
     this._decodeArrayBuilder = function(calcParam) {
-	var buffer = calcParam.builder.getArrayBuffer();
+	var buffer = calcParam.buffer;
+	console.log("kstart----");
 	for(;calcParam.i<calcParam.length;calcParam.i++) {
 	    switch(buffer[calcParam.i]) {
 	    case 0x64:
@@ -30,11 +32,12 @@ hetima.util.Bdecode = function (mode) {
 		//0-9:text
 		return this._decodeText(calcParam);
 	    }
+	    console.log("kerr----"+buffer[calcParam.i]+ ","+calcParam.i);
 	}
     };
     
     this._decodeList = function(calcParam) {
-	var buffer = calcParam.builder.getArrayBuffer();
+	var buffer = calcParam.buffer;
 	var ret = [];
 	calcParam.i++;//d
 	do {
@@ -50,7 +53,7 @@ hetima.util.Bdecode = function (mode) {
 
 
     this._decodeDiction = function(calcParam) {
-	var buffer = calcParam.builder.getArrayBuffer();
+	var buffer = calcParam.buffer;
 	var ret = {};
 	calcParam.i++;//l
 	do {
@@ -67,7 +70,7 @@ hetima.util.Bdecode = function (mode) {
     }
     
     this._decodeNumber = function(calcParam) {
-	var buffer = calcParam.builder.getArrayBuffer();
+	var buffer = calcParam.buffer;
 	var ret = 0;
 	calcParam.i++;//i
 	for(;calcParam.i<calcParam.length;calcParam.i++) {
@@ -81,7 +84,7 @@ hetima.util.Bdecode = function (mode) {
     }
     
     this._decodeText = function(calcParam) {
-	var buffer = calcParam.builder.getArrayBuffer();
+	var buffer = calcParam.buffer;
 	var len = 0;
 	for(;calcParam.i<calcParam.length;calcParam.i++) {
 	    if(buffer[calcParam.i] ==0x3a) {
