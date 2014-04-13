@@ -18,6 +18,7 @@ var _interSignalCL = new(function()
     };
     this.onReceiveMessage = function(v) {
 	console.log("+++onReceivceMessage("+v+")\n");
+	goog.dom.$('receive').value += v.content + "\n";
     };
 });
 
@@ -39,12 +40,27 @@ function initial()
 function initialUI() 
 {
     var btnJoin = goog.dom.createDom("input", {id:"button",type:"button",value:"join"},"");
-    goog.dom.appendChild(document.body, btnJoin);
+
     btnJoin.onclick = onClickA;
+    goog.dom.appendChild(document.body, btnJoin);
+    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+    goog.dom.appendChild(document.body, goog.dom.createDom("hr"));
+
+
+    var fieldSend = goog.dom.createDom("textarea", {id:"send",width:"500px"},"");
+    goog.dom.appendChild(document.body, fieldSend);
+    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
 
     var btnSend = goog.dom.createDom("input", {id:"button",type:"button",value:"send"},"");
     goog.dom.appendChild(document.body, btnSend);
     btnSend.onclick = onClickB;
+    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+    goog.dom.appendChild(document.body, goog.dom.createDom("hr"));
+
+    var fieldReceive = goog.dom.createDom("textarea", {id:"receive",width:"500px"},"");
+    goog.dom.appendChild(document.body, fieldReceive);
+    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+
 }
 
 function onClickA()
@@ -56,7 +72,8 @@ function onClickA()
 function onClickB()
 {
     console.log("on click b" + _myAddress);
-    _client.broadcastMessage("hello world!!");
+    var message = goog.dom.$("send").value;
+    _client.broadcastMessage(_myAddress, message);
 }
 
 
