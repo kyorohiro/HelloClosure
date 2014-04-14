@@ -1,15 +1,26 @@
 goog.provide('hetima.signal.SignalClient');
+goog.require('hetima.util.Bencode');
+goog.require('hetima.util.Bdecode');
+goog.require('hetima.util.Encoder');
 
 hetima.signal.SignalClient = function (url) {
+    var _this = this;
     this.ws = new WebSocket(url);
-    this.mList = new Array();
+    this.ws.binaryType = 'arraybuffer';
+    this.mBencoder = new hetima.util.Bencode();
+    this.mBdecoder = new hetima.util.Bdecode();
+    this.mEncoder = new hetima.util.Encoder();
 
     this.mPeer = new (function() {
 	this.onReceiveAnswer = function(v) {console.log("+++onReceiveAnswer()\n");}
 	this.addIceCandidate = function(v) {console.log("+++addIceCandidate()\n");}
 	this.startAnswerTransaction = function(v) {console.log("+++startAnswerTransaction()\n");}
-	this.onJoinNetwork = function(v) {console.log("+++onJoinNetwork(si)\n");}
-	this.onReceiveMessage = function(v) {console.log("+++onReceivceMessage("+v+")\n");}
+	this.onJoinNetwork = function(v) {
+	    console.log("+++onJoinNetwork("+JSON.stringify(parsedData)+")");
+	}
+	this.onReceiveMessage = function(v) {
+	    console.log("+++onReceivceMessage("+JSON.stringify(parsedData)+")");
+	}
     });
 
     this.setPeer = function(peer) {
@@ -19,10 +30,11 @@ hetima.signal.SignalClient = function (url) {
     this.onReceiveMessage = function(message) {
 	var body = message.content;
 	var v = {};
-	v.contentType = body["contentType"];
+
 	v.content     = body["body"];
-	v.from        = message["from"];
-	v.to          = message["to"];
+	v.contentType = hetima.util.Encoder.toText(body["contentType"]);
+	v.from        = hetima.util.Encoder.toText(message["from"]);
+	v.to          = hetima.util.Encoder.toText(message["to"]);
 	console.log("::::::::::::::::onReeive"+v.contentType+","+v.from);
 	if ("join" === v.contentType) {
 	    this.mPeer.onJoinNetwork(v);
@@ -35,10 +47,6 @@ hetima.signal.SignalClient = function (url) {
 	} else if("message" == v.contentType){
 	    this.mPeer.onReceiveMessage(v);
 	}
-    };
-
-    this.send = function() {
-	this.ws.send("hello");
     };
 
     this.join = function(from) {
@@ -58,7 +66,7 @@ hetima.signal.SignalClient = function (url) {
 	b["contentType"] = contentType;
 	b["body"]        = content;
 	v["content"]     = b;
-	this.ws.send(JSON.stringify(v));
+	this.ws.send(_this.mBencoder.encodeObject(v).getUint8Array().buffer);
     };
 
     this.unicastMessage = function(to, from, content) {
@@ -71,68 +79,18 @@ hetima.signal.SignalClient = function (url) {
 	b["contentType"] = "message";
 	b["body"]        = content;
 	v["content"]     = b;
-	this.ws.send(JSON.stringify(v));
+	this.ws.send(_this.mBencoder.encodeObject(v).getUint8Array().buffer);
     };
 
-    this.sendOffer = function(to, from, content) {
-	console.log("::::::::::::::::sendOffer");
-	var v = {};
-	var b = {};
-	v["to"]          = to;
-	v["from"]        = from;
-	v["messageType"] = "unicast";
-	b["contentType"] = "offer";
-	b["body"]        = content;
-	v["content"]     = b;
-	this.ws.send(JSON.stringify(v));
-    };
-
-    this.sendCandidate = function(to, from, content) {
-	console.log("::::::::::::::::sendCandidate");
-	var v = {};
-	var b = {};
-	v["to"]          = to;
-	v["from"]        = from;
-	v["messageType"] = "unicast";
-	b["contentType"] = "candidate";
-	b["body"]        = content;
-	v["content"]     = b;
-	this.ws.send(JSON.stringify(v));
-    };
-
-    this.sendAnswer = function(to, from, content) {
-	console.log("::::::::::::::::sendAnswer");
-	var v = {};
-	var b = {};
-	v["to"]          = to;
-	v["from"]        = from;
-	v["messageType"] = "unicast";
-	b["contentType"] = "answer";
-	b["body"]        = content;
-	v["content"]     = b;
-	this.ws.send(JSON.stringify(v));
-    };
-
-    var _own = this;
     this.ws.onmessage = function(m) {
-	console.log("::::::::::::::::pnmessage");
-	var parsedData = JSON.parse(m.data);
-	var contentType = parsedData["contentType"];
-	var uuid = parsedData["_from"];
-	console.log("--onSignalClient#WS#OnMessage():"+contentType+","+uuid);
-	if("join" === contentType) {
-	    var v={};
-	    v.name = "dummy";
-	    _own.mList[uuid] = v;
-	}
-	_own.onReceiveMessage(parsedData);
+	var parsedData = _this.mBdecoder.decodeArrayBuffer(new Uint8Array(m.data), 0, m.data.byteLength);
+	//console.log("mes:"+JSON.stringify(parsedData));
+	//console.log("--onSignalClient#WS#OnMessage():"+contentType+","+from);
+	_this.onReceiveMessage(parsedData);
     };
 
     this.ws.onclose = function(m) {
 	console.log("--onClose()"+m);
     };
 
-    this.onTransferMessage = function(caller, message) {
-
-    }
 };

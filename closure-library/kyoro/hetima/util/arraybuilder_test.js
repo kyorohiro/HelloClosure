@@ -11,7 +11,7 @@ function testS() {
     assertEquals(108, builder.toUint8Array()[2]);
     assertEquals(105, builder.toUint8Array()[3]);
     assertEquals(111, builder.toUint8Array()[4]);
-    assertEquals(5, builder.toByteBuffer().byteLength);
+    assertEquals(5, builder.toUint8Array().length);
 }
 
 function testM(){
@@ -23,7 +23,7 @@ function testM(){
     assertEquals(108, builder.toUint8Array()[2]);
     assertEquals(105, builder.toUint8Array()[3]);
     assertEquals(111, builder.toUint8Array()[4]);
-    assertEquals(5, builder.toByteBuffer().byteLength);
+    assertEquals(5  , builder.toUint8Array().length);
 }
 
 function testN(){
@@ -31,4 +31,6 @@ function testN(){
     builder.appendText("helio");
     assertEquals("li", builder.subString(2,2));
 }
+
+
 

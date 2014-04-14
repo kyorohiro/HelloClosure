@@ -1,7 +1,7 @@
 goog.require('goog.dom');
 goog.require('hetima.signal.SignalClient');
 goog.require('hetima.util.UUID');
-
+goog.require('hetima.util.Encoder');
 
 var _client;// = hetima.signal.SignalClient("ws://localhost:8080");
 var _myAddress;// = hetima.util.UUID.getID();
@@ -18,7 +18,7 @@ var _interSignalCL = new(function()
     };
     this.onReceiveMessage = function(v) {
 	console.log("+++onReceivceMessage("+v+")\n");
-	goog.dom.$('receive').value += v.content + "\n";
+	goog.dom.$('receive').value += hetima.util.Encoder.toText(v.content) + "\n";
     };
 });
 

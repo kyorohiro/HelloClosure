@@ -1,8 +1,7 @@
 goog.provide("hetima.util.ArrayBuilder");
 
 hetima.util.ArrayBuilder = function (size) {
-    this.mRaw = new ArrayBuffer(size);
-    this.mBuffer = new Uint8Array(this.mRaw);
+    this.mBuffer = new Uint8Array(new ArrayBuffer(size));
     this.mLength = 0;
     
     this.appendText = function(text) {
@@ -23,29 +22,25 @@ hetima.util.ArrayBuilder = function (size) {
     
     this.update = function(appendLength) {
 	if(this.mBuffer.byteLength < (appendLength+this.mLength)) {
-	    var nextRaw = new ArrayBuffer((appendLength+this.mLength)*2);
-	    var next = new Uint8Array(nextRaw);
+	    var next = new Uint8Array(new ArrayBuffer((appendLength+this.mLength)*2));
 	    next.mLength = (appendLength+this.mLength);
 	    for(var i=0;i<this.mLength;i++) {
 		next[i] = this.mBuffer[i];
 	    }
 	    this.mBuffer = next;
-	    this.mRaw = nextRaw;
-	    next = null;
 	}
     };
     
     this.getLength = function() {
 	return this.mLength;
     };
-    
-    this.getArrayBuffer = function() {
-	return this.mRaw;
+
+    this.getUint8Array = function() {
+	return this.mBuffer
     };
 
     this.toUint8Array = function() {
-	var raw = new ArrayBuffer(this.mLength);
-	var buffer = new Uint8Array(raw);
+	var buffer = new Uint8Array(new ArrayBuffer(this.mLength));
 	buffer.mLength = this.mLength;
 	for (var i=0;i<buffer.byteLength;i++) {
 	    buffer[i] = this.mBuffer[i];
