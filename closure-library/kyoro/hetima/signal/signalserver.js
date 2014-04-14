@@ -2,6 +2,7 @@ goog.provide('hetima.signal.SignalServer');
 goog.require('hetima.signal.UserInfo');
 goog.require('hetima.util.Bencode');
 goog.require('hetima.util.Bdecode');
+goog.require('hetima.util.Encoder');
 
 var HTTP = require('http');
 var WSServer = require('websocket').server;
@@ -81,8 +82,8 @@ hetima.signal.SignalServer = function (rootDir) {
 	while(keys.length != 0) {
 	    var key = keys.pop();
 	    var socket = this.mUserInfos.get(key)["socket"];
-	    socket.send(this.toBuffer(_message.buffer));
-	    console.log(_message);
+	    socket.send(_message);
+	    console.log(hetima.util.Encoder.toText(_message));
 	}
 	console.log("----//broadcast-----");
     }

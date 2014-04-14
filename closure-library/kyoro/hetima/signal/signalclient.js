@@ -28,6 +28,7 @@ hetima.signal.SignalClient = function (url) {
     };
 
     this.onReceiveMessage = function(message) {
+	console.log("+++onReceivceMessage("+JSON.stringify(message)+")");
 	var body = message.content;
 	var v = {};
 

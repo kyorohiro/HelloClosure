@@ -1,9 +1,16 @@
 goog.provide("hetima.util.ArrayBuilder");
 
-hetima.util.ArrayBuilder = function (size) {
-    this.mBuffer = new Uint8Array(new ArrayBuffer(size));
+hetima.util.ArrayBuilder = function (size, mode) {
+    if(mode == undefined || mode == "client") {
+	this.mMode = "client";
+	this.mBuffer = new Uint8Array(new ArrayBuffer(size));
+    } else {
+	this.mMode = mode;//server
+	this.mBuffer = new Buffer(size);
+    }
+
     this.mLength = 0;
-    
+    var _this = this;
     this.appendText = function(text) {
 	this.update(text.length);
 	for(var i=0;i<text.length;i++) {
@@ -22,7 +29,13 @@ hetima.util.ArrayBuilder = function (size) {
     
     this.update = function(appendLength) {
 	if(this.mBuffer.byteLength < (appendLength+this.mLength)) {
-	    var next = new Uint8Array(new ArrayBuffer((appendLength+this.mLength)*2));
+	    
+	    var next;
+	    if(_this.mMode == "client") {
+		next = new Uint8Array(new ArrayBuffer((appendLength+this.mLength)*2));
+	    } else {
+		next = new Uint8Array(new Buffer((appendLength+this.mLength)*2));
+	    }
 	    next.mLength = (appendLength+this.mLength);
 	    for(var i=0;i<this.mLength;i++) {
 		next[i] = this.mBuffer[i];

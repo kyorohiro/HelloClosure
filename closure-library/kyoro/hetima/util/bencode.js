@@ -1,9 +1,15 @@
 goog.provide('hetima.util.Bencode');
 goog.require('hetima.util.ArrayBuilder');
 
-hetima.util.Bencode = function () {
-    this.encodeObject = function(_obj) {
-	var builder = new hetima.util.ArrayBuilder();
+hetima.util.Bencode = function (mode) {
+    if(mode == undefined) {
+	this.mMode = "client";
+    } else {
+	this.mMode = mode;
+    }
+
+    this.encodeObject = function(_obj) {	
+	var builder = new hetima.util.ArrayBuilder(100, this.mMode);
 	this.__encode(_obj, builder)
 	return builder;
     };
