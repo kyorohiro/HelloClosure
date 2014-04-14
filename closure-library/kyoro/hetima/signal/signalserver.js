@@ -13,7 +13,7 @@ hetima.signal.SignalServer = function (rootDir) {
     this.mRootDir = rootDir;
     this.mHttpServer = null;
     this.mWsserverSocket = null;
-    this.mUserInfos = new hetima.signal.UserInfo();
+    this.mUserInfos = new hetima.signal.UserInfo(10);
     this.mEncoder = new hetima.util.Bencode("text");
     this.mDecoder = new hetima.util.Bdecode("text");
     var _this = this;
@@ -44,19 +44,20 @@ hetima.signal.SignalServer = function (rootDir) {
 	    var websocket = req.accept(null, req.origin);
 
 	    websocket.on('message', function(mes) {
-		console.log("mes:t="+mes.type);
-		console.log("mes:"+mes.binaryData.length);
-
 		var cont = _this.mDecoder.decodeArrayBuffer(mes.binaryData, 0, mes.binaryData.length);
 		console.log("mes:"+JSON.stringify(cont));
 		var messageType   = cont["messageType"];
 		var content       = cont["content"];
 		var to            = cont["to"];
 		var from          = cont["from"];
-		console.log("to:"+to);
-		console.log("from:"+from);
-		_own.mUserInfos.add(from, websocket)
-		
+
+		console.log("type:"+messageType+",to:"+to+",from:"+from);
+		{ // recent list
+		    console.log("to:"   + hetima.util.Encoder.toText(to));
+		    console.log("from:" + hetima.util.Encoder.toText(from));
+		    _own.mUserInfos.add(hetima.util.Encoder.toText(from), websocket);
+		}
+
 		if(messageType === "unicast") {
 		    var v = {}
 		    v["content"] = content;
@@ -64,24 +65,26 @@ hetima.signal.SignalServer = function (rootDir) {
 		    v["from"]    = from;
 		    var s=_this.mEncoder.encodeObject(v);
 		    _own.uniMessage(to, s.getUint8Array());
-		} else if(messageType =="broadcast") {
+		} else if(messageType ==="broadcast") {
 		    var v = {}
 		    v["content"]     = content;
 		    v["from"]        = from;
 		    var s=_this.mEncoder.encodeObject(v);
 		    _own.broadcastMessage(s.getUint8Array());
-		} 
+		} else if(messageType === "list") {
+		    var v = {};
+		    v["list"] = [];
+
+		}
 	    });
 	});
     };
+
     
     this.broadcastMessage = function(_message) {
 	console.log("----broadcast----");
-	this.mUserInfos.show();
-	var keys = this.mUserInfos.keys();
-	while(keys.length != 0) {
-	    var key = keys.pop();
-	    var socket = this.mUserInfos.get(key)["socket"];
+	for(var i=0;i<this.mUserInfos.length();i++) {
+	    var socket = this.mUserInfos.get(i)["socket"];
 	    socket.send(_message);
 	    console.log(hetima.util.Encoder.toText(_message));
 	}
@@ -92,7 +95,7 @@ hetima.signal.SignalServer = function (rootDir) {
 	console.log("----uni----"+to);
 	try {
 	    var socket = this.mUserInfos.get(to)["socket"];
-	    socket.send(this.toBuffer(_message.buffer));
+	    socket.send(_message.buffer);
 	    console.log(_message);
 	} catch(e) {
 	    console.log(e);
@@ -100,13 +103,4 @@ hetima.signal.SignalServer = function (rootDir) {
 	console.log("----//uni-----");
     }
 
-    //http://stackoverflow.com/questions/8609289/convert-a-binary-nodejs-buffer-to-javascript-arraybuffer
-    this.toBuffer = function(ab) {
-	var buffer = new Buffer(ab.byteLength);
-	var view = new Uint8Array(ab);
-	for (var i = 0; i < buffer.length; ++i) {
-            buffer[i] = view[i];
-	}
-	return buffer;
-    }
 };
