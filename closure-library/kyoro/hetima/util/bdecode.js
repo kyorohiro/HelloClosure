@@ -19,8 +19,8 @@ hetima.util.Bdecode = function (mode) {
     
     this._decodeArrayBuilder = function(calcParam) {
 	var buffer = calcParam.buffer;
-	for(;calcParam.i<calcParam.length;calcParam.i++) {
-	    console.log(buffer[calcParam.i]);
+//	for(;calcParam.i<calcParam.length;calcParam.i++) {
+//	    console.log(buffer[calcParam.i]);
 	    switch(buffer[calcParam.i]) {
 	    case 0x64:
 		//d:diction
@@ -36,7 +36,7 @@ hetima.util.Bdecode = function (mode) {
 		//0-9:text
 		return this._decodeText(calcParam);
 	    }
-	}
+//	}
     };
     
     this._decodeList = function(calcParam) {

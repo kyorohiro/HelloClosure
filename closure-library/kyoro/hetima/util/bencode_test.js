@@ -22,6 +22,16 @@ function testS() {
     }
 }
 
+function testArray() {
+    var bencode = new hetima.util.Bencode();
+    var _obj = {};
+    var builder = new hetima.util.ArrayBuilder();
+    builder.appendText("abc");
+    _obj.test3= builder.toUint8Array();
+    var arraybuilder = bencode.encodeObject(_obj);
+    assertEquals("d5:test33:abce", arraybuilder.toText());
+}
+
 function testS2() {
     var bencode = new hetima.util.Bencode();
     var _obj = {};

@@ -71,7 +71,7 @@ hetima.signal.SignalClient = function (url) {
     };
 
     this.unicastMessage = function(to, from, content) {
-	console.log("::::::::::::::::unicastMessage : from="+from+",content="+content);
+	console.log("::::::::::::::::unicastMessage : to="+to+",from="+from+",content="+content);
 	var v = {};
 	var b = {};
 	v["to"]          = to;
@@ -84,9 +84,9 @@ hetima.signal.SignalClient = function (url) {
     };
 
     this.ws.onmessage = function(m) {
+	console.log("+++("+hetima.util.Encoder.toText(new Uint8Array(m.data))+")");
+//	var parsedData = _this.mBdecoder.decodeArrayBuffer(m.data, 0, m.data.byteLength);
 	var parsedData = _this.mBdecoder.decodeArrayBuffer(new Uint8Array(m.data), 0, m.data.byteLength);
-	//console.log("mes:"+JSON.stringify(parsedData));
-	//console.log("--onSignalClient#WS#OnMessage():"+contentType+","+from);
 	_this.onReceiveMessage(parsedData);
     };
 

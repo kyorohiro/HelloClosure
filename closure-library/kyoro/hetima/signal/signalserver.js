@@ -14,8 +14,8 @@ hetima.signal.SignalServer = function (rootDir) {
     this.mHttpServer = null;
     this.mWsserverSocket = null;
     this.mUserInfos = new hetima.signal.UserInfo(10);
-    this.mEncoder = new hetima.util.Bencode("text");
-    this.mDecoder = new hetima.util.Bdecode("text");
+    this.mEncoder = new hetima.util.Bencode("server");
+    this.mDecoder = new hetima.util.Bdecode("binary", "sercer");
     var _this = this;
 
     this.startServer = function(host, port) {
@@ -57,21 +57,21 @@ hetima.signal.SignalServer = function (rootDir) {
 		    console.log("from:" + hetima.util.Encoder.toText(from));
 		    _own.mUserInfos.add(hetima.util.Encoder.toText(from), websocket);
 		}
-
-		if(messageType === "unicast") {
+		var _messageType = hetima.util.Encoder.toText(messageType);
+		if(_messageType === "unicast") {
 		    var v = {}
 		    v["content"] = content;
 		    v["to"]      = to;
 		    v["from"]    = from;
 		    var s=_this.mEncoder.encodeObject(v);
-		    _own.uniMessage(to, s.getUint8Array());
-		} else if(messageType ==="broadcast") {
+		    _own.uniMessage(hetima.util.Encoder.toText(to), s.getUint8Array());
+		} else if(_messageType ==="broadcast") {
 		    var v = {}
 		    v["content"]     = content;
 		    v["from"]        = from;
 		    var s=_this.mEncoder.encodeObject(v);
 		    _own.broadcastMessage(s.getUint8Array());
-		} else if(messageType === "list") {
+		} else if(_messageType === "list") {
 		    var v = {};
 		    v["list"] = [];
 
@@ -82,7 +82,7 @@ hetima.signal.SignalServer = function (rootDir) {
 
     
     this.broadcastMessage = function(_message) {
-	console.log("----broadcast----");
+	console.log("----broadcast----"+_message);
 	for(var i=0;i<this.mUserInfos.length();i++) {
 	    var socket = this.mUserInfos.get(i)["socket"];
 	    socket.send(_message);
@@ -94,9 +94,14 @@ hetima.signal.SignalServer = function (rootDir) {
     this.uniMessage = function(to,_message) {
 	console.log("----uni----"+to);
 	try {
-	    var socket = this.mUserInfos.get(to)["socket"];
-	    socket.send(_message.buffer);
-	    console.log(_message);
+	    var info = this.mUserInfos.findInfo(to);
+	    if(info == undefined) {
+		console.log("----//uni--e---");
+		return;
+	    }
+	    var socket = info["socket"];
+	    socket.send(_message);
+	    console.log(hetima.util.Encoder.toText(_message));
 	} catch(e) {
 	    console.log(e);
 	}

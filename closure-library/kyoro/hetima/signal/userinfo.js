@@ -31,6 +31,7 @@ hetima.signal.UserInfo = function (num) {
     
     this.find = function (uuid) {
 	for(var i=0;i<this.mList.length;i++) {
+	    console.log("----" + this.mList[i].uuid+","+uuid);
 	    if(uuid == this.mList[i].uuid) {
 		return i;
 	    }
@@ -41,5 +42,13 @@ hetima.signal.UserInfo = function (num) {
     this.get = function (index) {
 	return this.mList[index];
     };
-};
 
+    this.findInfo = function(uuid) {
+	var index = this.find(uuid);
+	if(index>=0) {
+	    return this.get(index);
+	} else {
+	    return undefined;
+	}
+    }
+};

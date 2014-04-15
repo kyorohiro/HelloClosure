@@ -26,17 +26,21 @@ hetima.util.ArrayBuilder = function (size, mode) {
 	    this.mLength++;
 	}
     };
+
+    this.appendByte = function(datam) {
+	this.update(1);
+	this.mBuffer[this.mLength] = datam;
+	this.mLength++;
+    };
     
     this.update = function(appendLength) {
-	if(this.mBuffer.byteLength < (appendLength+this.mLength)) {
-	    
+	if(this.mBuffer.length < (appendLength+this.mLength)) {
 	    var next;
 	    if(_this.mMode == "client") {
-		next = new Uint8Array(new ArrayBuffer((appendLength+this.mLength)*2));
+		next = new Uint8Array(new ArrayBuffer((appendLength+this.mBuffer.length)*2));
 	    } else {
-		next = new Uint8Array(new Buffer((appendLength+this.mLength)*2));
+		next = new Buffer((appendLength+this.mBuffer.length)*2);
 	    }
-	    next.mLength = (appendLength+this.mLength);
 	    for(var i=0;i<this.mLength;i++) {
 		next[i] = this.mBuffer[i];
 	    }

@@ -16,8 +16,17 @@ hetima.util.Bencode = function (mode) {
     
     this.__encode = function(_obj, builder) {
 	var type = Object.prototype.toString.apply(_obj);
+	console.log("--"+type);
 	if( type == "[object String]") {
 	    builder.appendText(""+_obj.length+":"+_obj);
+	}
+	else if( type == "[object Uint8Array]") {
+	    builder.appendText(""+_obj.length+":");
+	    builder.appendBytes(_obj);
+	}
+	else if( type == "[object Buffer]") {
+	    builder.appendText(""+_obj.length+":");
+	    builder.appendBytes(_obj);
 	}
 	else if( type == "[object Number]") {
 	    builder.appendText("i"+_obj+"e");
