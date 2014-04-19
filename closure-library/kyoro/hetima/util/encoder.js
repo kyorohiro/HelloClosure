@@ -40,20 +40,20 @@ hetima.util.Encoder.bytes2Text = function(buffer) {
     for( var j=0;j<buffer.length;) {
         if ( buffer[j] <= 0x7f) {
             result += String.fromCharCode(buffer[j]);
-	    j++;if(j>=buffer.length) {break;}
+	    j++;//if(j>=buffer.length) {break;}
         } 
 	else if (buffer[j] <= 0xdf) {
             var c = ((buffer[j]&0x1f)<<6);
 	    j++;if(j>=buffer.length) {break;}
             c += buffer[j]&0x3f;
-	    j++;if(j>=buffer.length) {break;}
+	    j++;//if(j>=buffer.length) {break;}
             result += String.fromCharCode(c);
         } 
 	else if (buffer[j] <= 0xe0) {
             var c = ((buffer[j]&0x1f)<<6)|0x0800;
 	    j++;if(j>=buffer.length) {break;}
             c += buffer[j]&0x3f;
-	    j++;if(j>=buffer.length) {break;}
+	    j++;//if(j>=buffer.length) {break;}
             result += String.fromCharCode(c);
         } 
 	else {
@@ -62,7 +62,7 @@ hetima.util.Encoder.bytes2Text = function(buffer) {
             c += (buffer[j]&0x3f)<<6;
 	    j++;if(j>=buffer.length) {break;}
             c += buffer[j]& 0x3f;
-	    j++;if(j>=buffer.length) {break;}
+	    j++;//if(j>=buffer.length) {break;}
             result += String.fromCharCode(c);
         }
     }

@@ -29,3 +29,14 @@ function testS() {
     }
 }
 
+function testS() {
+    var v = hetima.util.Encoder.text2Bytes("あい");
+    assertEquals(0xe3, v[0]);
+    assertEquals(0x81, v[1]);
+    assertEquals(0x82, v[2]);
+    assertEquals(0xe3, v[3]);
+    assertEquals(0x81, v[4]);
+    assertEquals(0x84, v[5]);
+    assertEquals("あい", hetima.util.Encoder.toText(v));
+}
+
