@@ -11,32 +11,26 @@ hetima.util.Bdecode = function (mode) {
 	calcParam.i = start;
 	calcParam.length = length;
 	calcParam.buffer = buffer;
-//	for(var i=0;i<length;i++) {
-//	    console.log("["+i+"]="+calcParam.buffer[i]);
-//	}
 	return this._decodeArrayBuilder(calcParam);
     };
     
     this._decodeArrayBuilder = function(calcParam) {
 	var buffer = calcParam.buffer;
-//	for(;calcParam.i<calcParam.length;calcParam.i++) {
-//	    console.log(buffer[calcParam.i]);
-	    switch(buffer[calcParam.i]) {
-	    case 0x64:
-		//d:diction
-		return this._decodeDiction(calcParam);
-	    case 0x69: 
-		//i:number
-		return this._decodeNumber(calcParam);
-	    case 0x6c:
-		//l:list
-		return this._decodeList(calcParam);
-	    case 0x30:case 0x31:case 0x32:case 0x33:case 0x34:
-	    case 0x35:case 0x36:case 0x37:case 0x38:case 0x39:
-		//0-9:text
-		return this._decodeText(calcParam);
-	    }
-//	}
+	switch(buffer[calcParam.i]) {
+	case 0x64:
+	    //d:diction
+	    return this._decodeDiction(calcParam);
+	case 0x69: 
+	    //i:number
+	    return this._decodeNumber(calcParam);
+	case 0x6c:
+	    //l:list
+	    return this._decodeList(calcParam);
+	case 0x30:case 0x31:case 0x32:case 0x33:case 0x34:
+	case 0x35:case 0x36:case 0x37:case 0x38:case 0x39:
+	    //0-9:text
+	    return this._decodeText(calcParam);
+	}
     };
     
     this._decodeList = function(calcParam) {
@@ -53,8 +47,8 @@ hetima.util.Bdecode = function (mode) {
 	} while(true);
 	return ret;
     }
-
-
+    
+    
     this._decodeDiction = function(calcParam) {
 	var buffer = calcParam.buffer;
 	var ret = {};
@@ -66,7 +60,6 @@ hetima.util.Bdecode = function (mode) {
 	    }
 	    var key = this._decodeText(calcParam, "text");
 	    var value = this._decodeArrayBuilder(calcParam);
-//	    console.log("=="+key+","+value);
 	    ret[key] =  value;
 	} while(true);
 	return ret;
@@ -106,4 +99,3 @@ hetima.util.Bdecode = function (mode) {
 	return ret;
     }
 }
-

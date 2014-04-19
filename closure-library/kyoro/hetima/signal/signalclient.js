@@ -10,6 +10,7 @@ hetima.signal.SignalClient = function (url) {
     this.mBencoder = new hetima.util.Bencode();
     this.mBdecoder = new hetima.util.Bdecode();
     this.mEncoder = new hetima.util.Encoder();
+//    this.mAutoConnect = true;
 
     this.mPeer = new (function() {
 	this.onReceiveAnswer = function(v) {console.log("+++onReceiveAnswer()\n");}
@@ -22,6 +23,7 @@ hetima.signal.SignalClient = function (url) {
 	    console.log("+++onReceivceMessage("+JSON.stringify(parsedData)+")");
 	}
     });
+
 
     this.setPeer = function(peer) {
 	this.mPeer = peer;

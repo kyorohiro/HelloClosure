@@ -8,7 +8,7 @@ hetima.util.ArrayBuilder = function (size, mode) {
 	this.mMode = mode;//server
 	this.mBuffer = new Buffer(size);
     }
-
+    
     this.mLength = 0;
     var _this = this;
     this.appendText = function(text) {
@@ -26,7 +26,7 @@ hetima.util.ArrayBuilder = function (size, mode) {
 	    this.mLength++;
 	}
     };
-
+    
     this.appendByte = function(datam) {
 	this.update(1);
 	this.mBuffer[this.mLength] = datam;
@@ -51,11 +51,11 @@ hetima.util.ArrayBuilder = function (size, mode) {
     this.getLength = function() {
 	return this.mLength;
     };
-
+    
     this.getUint8Array = function() {
 	return this.mBuffer
     };
-
+    
     this.toUint8Array = function() {
 	var buffer = new Uint8Array(new ArrayBuffer(this.mLength));
 	buffer.mLength = this.mLength;

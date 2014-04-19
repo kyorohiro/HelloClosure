@@ -7,7 +7,7 @@ hetima.util.Bencode = function (mode) {
     } else {
 	this.mMode = mode;
     }
-
+    
     this.encodeObject = function(_obj) {	
 	var builder = new hetima.util.ArrayBuilder(100, this.mMode);
 	this.__encode(_obj, builder)
@@ -16,7 +16,6 @@ hetima.util.Bencode = function (mode) {
     
     this.__encode = function(_obj, builder) {
 	var type = Object.prototype.toString.apply(_obj);
-	console.log("--"+type);
 	if( type == "[object String]") {
 	    builder.appendText(""+_obj.length+":"+_obj);
 	}

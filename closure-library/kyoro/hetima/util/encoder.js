@@ -34,24 +34,35 @@ hetima.util.Encoder.bytes2Text = function(buffer) {
     if (buffer == null) {
         return null;
     }
+
     var result = "";
-    var i;
-    for( var j=0;j<buffer.length;j++) {
-        i = buffer[j];
-        if (i <= 0x7f) {
-            result += String.fromCharCode(i);
-        } else if (i <= 0xdf) {
-            var c = ((i&0x1f)<<6);
-            c += buffer.shift()&0x3f;
+    var head;
+    for( var j=0;j<buffer.length;) {
+        if ( buffer[j] <= 0x7f) {
+            result += String.fromCharCode(buffer[j]);
+	    j++;if(j>=buffer.length) {break;}
+        } 
+	else if (buffer[j] <= 0xdf) {
+            var c = ((buffer[j]&0x1f)<<6);
+	    j++;if(j>=buffer.length) {break;}
+            c += buffer[j]&0x3f;
+	    j++;if(j>=buffer.length) {break;}
             result += String.fromCharCode(c);
-        } else if (i <= 0xe0) {
-            var c = ((buffer.shift()&0x1f)<<6)|0x0800;
-            c += buffer.shift()&0x3f;
+        } 
+	else if (buffer[j] <= 0xe0) {
+            var c = ((buffer[j]&0x1f)<<6)|0x0800;
+	    j++;if(j>=buffer.length) {break;}
+            c += buffer[j]&0x3f;
+	    j++;if(j>=buffer.length) {break;}
             result += String.fromCharCode(c);
-        } else {
-            var c = ((i&0x0f)<<12);
-            c += (buffer.shift()&0x3f)<<6;
-            c += buffer.shift() & 0x3f;
+        } 
+	else {
+            var c = ((buffer[j]&0x0f)<<12);
+	    j++;if(j>=buffer.length) {break;}
+            c += (buffer[j]&0x3f)<<6;
+	    j++;if(j>=buffer.length) {break;}
+            c += buffer[j]& 0x3f;
+	    j++;if(j>=buffer.length) {break;}
             result += String.fromCharCode(c);
         }
     }
