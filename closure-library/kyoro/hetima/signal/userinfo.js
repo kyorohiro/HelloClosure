@@ -28,6 +28,7 @@ hetima.signal.UserInfo = function (num) {
 	    this.mList.push(v);
 	}
     };
+
     
     this.find = function (uuid) {
 	for(var i=0;i<this.mList.length;i++) {
