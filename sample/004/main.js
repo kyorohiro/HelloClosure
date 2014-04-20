@@ -10,14 +10,20 @@ goog.require('hetima.util.UUID');
 //goog.require('hetima.util.Encoder');
 
 
+
+// handshake ui
 var mConnectButton;
 var mOfferButton;
 var mAnswerButton;
 var mSetRemoteSdpAsCallerButton;
 var mSetRemoteSdpAsCalleeButton;
-
 var mLocalSDPField;
 var mRemoteSDPField;
+
+// send/receive ui
+var mSendMessageButton;
+var mSendMessageField;
+var mReceiveMessageField;
 
 var mCaller;
 var mMyAddress;
@@ -33,6 +39,11 @@ function appmain()
 function initUI()
 {
     console.log("initUI()");
+    initHandshakeUI();
+    initSendReceiveUI();
+}
+
+function initHandshakeUI() {
     mConnectButton       = goog.dom.createDom("input" ,{id:"connect" ,type:"button",value:"connect"});
     mOfferButton         = goog.dom.createDom("input" ,{id:"offer" ,type:"button",value:"offer"});
     mAnswerButton        = goog.dom.createDom("input",{id:"answer",type:"button",value:"answer"});
@@ -58,12 +69,28 @@ function initUI()
     goog.dom.appendChild(document.body, mRemoteSDPField);
     goog.dom.appendChild(document.body, goog.dom.createDom("br"));
 
-    goog.dom.appendChild(document.body, goog.dom.createDom("div", {}, "[[send/receive]]"));
     mConnectButton.onclick = onClickConnect;
     mOfferButton.onclick   = onClickOffer;
     mAnswerButton.onclick  = onClickAnswer;
     mSetRemoteSdpAsCallerButton.onclick  = onClickSetRemoteSdpAsCaller;
     mSetRemoteSdpAsCalleeButton.onclick  = onClickSetRemoteSdpAsCallee;
+}
+
+function initSendReceiveUI() {
+
+    mSendMessageButton   = goog.dom.createDom("input"   , {id:"sendmessage"  ,type:"button",value:"send"});
+    mSendMessageField    = goog.dom.createDom("textarea", {id:"sendfield" ,width:"500px",placeholder:"send message" },"");
+    mReceiveMessageField = goog.dom.createDom("textarea", {id:"receivefield" ,width:"500px",placeholder:"received message" },"");
+
+    goog.dom.appendChild(document.body, goog.dom.createDom("div", {}, "[[send/receive]]"));
+    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+    goog.dom.appendChild(document.body, mSendMessageButton);
+    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+    goog.dom.appendChild(document.body, mSendMessageField);
+    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+    goog.dom.appendChild(document.body, mReceiveMessageField);
+
+    mSendMessageButton.onclick = onClickSendMessage;
 }
 
 function init()
@@ -76,6 +103,7 @@ function init()
 	new (function() {
 		this.onReceiveMessage = function(caller, message) {
 		    console.log("::onReceiveMessage");
+		    mReceiveMessageField.value = message;
 		};
 		this.onIceCandidate = function(caller,event){
 		    console.log("::onIceCandidate");
@@ -120,3 +148,10 @@ function onClickSetRemoteSdpAsCallee()
     console.log("click setremotesdp");
     mCaller.setRemoteSDP("offer", mRemoteSDPField.value);
 }
+
+function onClickSendMessage()
+{
+    console.log("click send message");
+    mCaller.sendMessage("message:"+mSendMessageField.value+";");
+}
+
