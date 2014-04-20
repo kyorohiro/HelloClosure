@@ -21,19 +21,19 @@ goog.require('hetima.signal.UserInfo');
 // handshake ui
 var mStartButton;
 var mConnectButton;
-
+var mUnconnectedAddressComboBox;
 
 // send/receive ui
 var mSendMessageButton;
 var mSendMessageField;
 var mReceiveMessageField;
-var mUnconnectedAddressComboBox;
 var mConnectedAddressComboBox;
-var mSignalClient;
 
-var mCaller;
+
+// model 
 var mMyAddress;
-var mToAddress;
+var mSignalClient;
+var mCallerList;
 
 
 function appmain() 
@@ -118,33 +118,40 @@ function init()
     console.log("init()");
     mMyAddress = hetima.util.UUID.getID();
     console.log("::uuid="+mMyAddress);
-    mCaller = new hetima.signal.Caller();
-    mCaller.setEventListener(
-	new (function() {
-		this.onReceiveMessage = function(caller, message) {
-		    console.log("::onReceiveMessage");
-		    mReceiveMessageField.value = message;
-		};
-		this.onIceCandidate = function(caller,event){
-		    console.log("::onIceCandidate");
-		    if(!event.candidate) {
-			mLocalSDPField.value = caller.getRawPeerConnection().localDescription.sdp;
-		    }
-		};
-		this.onSetSessionDescription = function(caller,event){
-		    console.log("::onSetSessionDescription");
-		};
-	})
-    );
+    mCallerList = new hetima.signal.UserInfo();
+    //mCaller = new hetima.signal.Caller();
+    //mCaller.setEventListener(mSignalObserver);
     mSignalClient = new hetima.signal.SignalClient("ws://localhost:8080");
-    mSignalClient.setPeer(mClientObserver);
-    
+    mSignalClient.setPeer(mCallerObserver);
 }
-var mClientObserver = new(function() 
+
+var mSignalObserver = new (function() {
+    this.onReceiveMessage = function(caller, message) {
+	console.log("::onReceiveMessage");
+	mReceiveMessageField.value = message;
+    };
+    this.onIceCandidate = function(caller,event){
+	console.log("::onIceCandidate");
+	if(!event.candidate) {
+	    mLocalSDPField.value = caller.getRawPeerConnection().localDescription.sdp;
+	}
+    };
+    this.onSetSessionDescription = function(caller,event){
+	console.log("::onSetSessionDescription");
+    };
+});
+
+var mCallerObserver = new(function() 
 {
-    this.onReceiveAnswer = function(v) {console.log("+++onReceiveAnswer()\n");};
-    this.addIceCandidate = function(v) {console.log("+++addIceCandidate()\n");};
-    this.startAnswerTransaction = function(v) {console.log("+++startAnswerTransaction()\n");};
+    this.onReceiveAnswer = function(v) {
+	console.log("+++onReceiveAnswer()\n");
+    };
+    this.addIceCandidate = function(v) {
+	console.log("+++addIceCandidate()\n");
+    };
+    this.startAnswerTransaction = function(v) {
+	console.log("+++startAnswerTransaction()\n");
+    };
     this.onJoinNetwork = function(v) {
 	console.log("+++onJoinNetwork(si)\n");
 	console.log("---" + v.content);
@@ -184,7 +191,14 @@ function onClickStart()
 function onClickConnect()
 {
     console.log("click connect");
-    
+    var addr = mUnconnectedAddressComboBox.getValue();
+    if(addr == undefined || addr == null || addr == "broadcast") {
+	return;
+    }
+    var caller = new hetima.util.Caller(mMyAddress).setTargetUUID(addr);
+    mCallerList.add(uuid, caller);
+    caller.createPeerConnection();
+    caller.createOffer();
 }
 
 function onClickSendMessage()
