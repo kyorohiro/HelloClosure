@@ -50,7 +50,7 @@ hetima.util.Encoder.bytes2Text = function(buffer) {
             result += String.fromCharCode(c);
         } 
 	else if (buffer[j] <= 0xe0) {
-..            var c = ((buffer[j]&0x1f)<<6)|0x0800;
+            var c = ((buffer[j]&0x1f)<<6)|0x0800;
 	    j++;if(j>=buffer.length) {break;}
             c += buffer[j]&0x3f;
 	    j++;//if(j>=buffer.length) {break;}
