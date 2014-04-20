@@ -62,13 +62,16 @@ function init()
 	new (function() {
 		this.onReceiveMessage = function(caller, message) {
 		    console.log("::onReceiveMessage");
-		}
+		};
 		this.onIceCandidate = function(caller,event){
 		    console.log("::onIceCandidate");
-		}
+		    if(!event.candidate) {
+			mLocalSDPField.value = caller.getRawPeerConnection().localDescription.sdp;
+		    }
+		};
 		this.onSetSessionDescription = function(caller,event){
 		    console.log("::onSetSessionDescription");
-		}
+		};
 	})
     );
 }

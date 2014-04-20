@@ -6,9 +6,9 @@ goog.require('hetima.util.Encoder');
 
 hetima.signal.Caller = function Caller(id) {
     var _this = this;
-    this.pc = null;
-    this.pcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-    this.pcConstraints = { 'optional': [{'DtlsSrtpKeyAgreement': true}]};//, {'RtpDataChannels': true }] };
+    this.mPc = null;
+    this.mPcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+    this.mPcConstraints = { 'optional': [{'DtlsSrtpKeyAgreement': true}]};//, {'RtpDataChannels': true }] };
     this.mMyUUID = id;
     this.mTargetUUID = "";
     this.mDataChannel = null;
@@ -39,7 +39,12 @@ hetima.signal.Caller = function Caller(id) {
     this.getSignalClient =function() {
 	return this.mSignalClient;
     };
-    
+
+    this.getRawPeerConnection = function() 
+    {
+	return this.mPc;
+    };
+
     this.setTargetUUID = function(uuid) {
 	this.mTargetUUID = uuid;
 	return this;
@@ -56,7 +61,7 @@ hetima.signal.Caller = function Caller(id) {
     
     this.getLocalDescription = function() {
 	try {
-	    return _this.pc.localDescription;
+	    return _this.mPc.localDescription;
 	} catch(e) {
 	    return null;
 	}
@@ -65,30 +70,31 @@ hetima.signal.Caller = function Caller(id) {
     this.createPeerConnection = function() {
 	console.log("+++createPeerConnection()\n");
 	try {
-	    this.pc = new webkitRTCPeerConnection(this.pcConfig, this.pcConstraints);
-	    this.mDataChannel = this.pc.createDataChannel("channel",{});
+	    this.mPc = new webkitRTCPeerConnection(this.mPcConfig, this.mPcConstraints);
+	    this.mDataChannel = this.mPc.createDataChannel("channel",{});
 	    
 	    this.setChannelEvents();
-	    this.pc.onicecandidate = function (event) {//RTCIceCandidateEvent
+	    this.mPc.onicecandidate = function (event) {//RTCIceCandidateEvent
 		if(event.candidate) {
 		    console.log("+onIceCandidate("+event+","+event.candidate+"):"
-				+hetima.signal.Caller.iceCandidateType(_this.pc.localDescription.sdp));
+				+hetima.signal.Caller.iceCandidateType(_this.mPc.localDescription.sdp));
 		    _this.mObserver.onIceCandidate(_this, event);
 		} else {
+		    _this.mObserver.onIceCandidate(_this, event);
 		    console.log("+onIceCandidate(null)");
 		}
 	    };
-	    this.pc.onaddstream = function (event) {
+	    this.mPc.onaddstream = function (event) {
 		console.log("+++onRemoteStreamAdd("+event+"\n");};
-	    this.pc.onremovestream = function (event) {
+	    this.mPc.onremovestream = function (event) {
 		console.log("+++onRemoteStreamRemoved("+event+"\n");};
-	    this.pc.onsignalingstatechange = function (event) {
+	    this.mPc.onsignalingstatechange = function (event) {
 		console.log("+++onSignalingChanged("+event+"\n");};
-	    this.pc.oniceconnectionstatechange = function (event) {
+	    this.mPc.oniceconnectionstatechange = function (event) {
 		console.log("+++onIceConnectionStateChanged("+event.type+"\n");};
 	    this.onnegotiationneeded = function () {
 		console.log("+++onnegotiationneeded()\n");};
-	    this.pc.ondatachannel = function(event) {
+	    this.mPc.ondatachannel = function(event) {
 		console.log("--ondatachannel-\n");
 		_this.mDataChannel = event.channel;
 		_this.setChannelEvents();
@@ -101,14 +107,14 @@ hetima.signal.Caller = function Caller(id) {
     
     this.createOffer = function () {
 	console.log("+++createOffer()\n");
-	this.pc.createOffer(
+	this.mPc.createOffer(
 	    function _onSetLocalAndMessage (sessionDescription) {
 		console.log("+++setLocalAndSendMessage obj="+sessionDescription+"\n");
-		_this.pc.setLocalDescription(
+		_this.mPc.setLocalDescription(
 		    sessionDescription, 
 		    function() {console.log("+++onSetSessionDescriptionSuccess.");
-				_this.mObserver.onSetSessionDescription(_this, _this.pc.localDescription.type, _this.pc.localDescription.sdp);
-				_this.mSignalClient.sendOffer(_this.getTargetUUID(), _this.getMyUUID(), _this.pc.localDescription.sdp);
+				_this.mObserver.onSetSessionDescription(_this, _this.mPc.localDescription.type, _this.mPc.localDescription.sdp);
+				_this.mSignalClient.sendOffer(_this.getTargetUUID(), _this.getMyUUID(), _this.mPc.localDescription.sdp);
 			       },
 		    function(error) {console.log("+++onSetSessionDescriptionError" + error.toString());}
 		);
@@ -118,15 +124,15 @@ hetima.signal.Caller = function Caller(id) {
 
     this.createAnswer = function () {
 	console.log("+++createAnsert()======\n");
-	this.pc.createAnswer(
+	this.mPc.createAnswer(
 	    function _onSetLocalAndMessage (sessionDescription) {
 		console.log("+++setLocalAndSendMessage obj="+sessionDescription+"===============================\n");
-		_this.pc.setLocalDescription(
+		_this.mPc.setLocalDescription(
 		    sessionDescription, 
 		    function() {
 			console.log("+++onSetSessionDescriptionSuccess.=========================");
-			_this.mObserver.onSetSessionDescription(_this, _this.pc.localDescription.type, _this.pc.localDescription.sdp);
-			_this.mSignalClient.sendAnswer(_this.getTargetUUID(), _this.getMyUUID(), _this.pc.localDescription.sdp);
+			_this.mObserver.onSetSessionDescription(_this, _this.mPc.localDescription.type, _this.mPc.localDescription.sdp);
+			_this.mSignalClient.sendAnswer(_this.getTargetUUID(), _this.getMyUUID(), _this.mPc.localDescription.sdp);
 		    },
 		    function(error) {console.log("+++onSetSessionDescriptionError" + error.toString());}
 		);});
@@ -134,10 +140,10 @@ hetima.signal.Caller = function Caller(id) {
     };
     
     this.addIceCandidate = function (candidate) {
-	console.log("+++addIceCandidate()"+this.pc+","+candidate+"\n");
+	console.log("+++addIceCandidate()"+this.mPc+","+candidate+"\n");
 	try {
 	    var _c =new RTCIceCandidate(candidate);
-	    this.pc.addIceCandidate(_c);
+	    this.mPc.addIceCandidate(_c);
 	}catch(e) {
 	    console.log("+++addIceCandidate() ERROR"+e.message);
 	}
@@ -156,7 +162,7 @@ hetima.signal.Caller = function Caller(id) {
 	var sd = new RTCSessionDescription();
 	sd.type = _type;
 	sd.sdp = _sdp;
-	this.pc.setRemoteDescription(sd);
+	this.mPc.setRemoteDescription(sd);
 	return this;
     };
     
