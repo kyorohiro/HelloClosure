@@ -12,10 +12,10 @@ hetima.signal.UserInfo = function (num) {
 	return this.mList.length;
     };
     
-    this.add = function (uuid, socket) {
+    this.add = function (uuid, content) {
 	var v = {};
 	v.uuid = uuid;
-	v.socket = socket;
+	v.content = content;
 
 	var index = this.find(uuid);
 	if(index >=0) {
@@ -29,7 +29,6 @@ hetima.signal.UserInfo = function (num) {
 	}
     };
 
-    
     this.find = function (uuid) {
 	for(var i=0;i<this.mList.length;i++) {
 	    console.log("----" + this.mList[i].uuid+","+uuid);
@@ -51,5 +50,5 @@ hetima.signal.UserInfo = function (num) {
 	} else {
 	    return undefined;
 	}
-    }
+    };
 };

@@ -84,7 +84,7 @@ hetima.signal.SignalServer = function (rootDir) {
     this.broadcastMessage = function(_message) {
 	console.log("----broadcast----"+_message);
 	for(var i=0;i<this.mUserInfos.length();i++) {
-	    var socket = this.mUserInfos.get(i)["socket"];
+	    var socket = this.mUserInfos.get(i)["content"];
 	    socket.send(_message);
 	    console.log(hetima.util.Encoder.toText(_message));
 	}
@@ -99,7 +99,7 @@ hetima.signal.SignalServer = function (rootDir) {
 		console.log("----//uni--e---");
 		return;
 	    }
-	    var socket = info["socket"];
+	    var socket = info["content"];
 	    socket.send(_message);
 	    console.log(hetima.util.Encoder.toText(_message));
 	} catch(e) {
