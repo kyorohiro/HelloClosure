@@ -49,8 +49,7 @@ hetima.signal.Caller = function Caller(id) {
 	this.mTargetUUID = uuid;
 	return this;
     };
-    
-    
+
     this.getTargetUUID = function() {
 	return this.mTargetUUID;
     };
@@ -179,7 +178,7 @@ hetima.signal.Caller = function Caller(id) {
 	};
 	this.mDataChannel.onopen = function(event) {
 	    console.log("############## onopen:"+event);
-	    _this.mObserver.onOpen(_this, event.data);
+	    //_this.mObserver.onOpen(_this, event.data);
 	};
 	this.mDataChannel.onerror = function(error) {console.log("onerror:"+JSON.parse(error));};
 	this.mDataChannel.onclose = function(error) {console.log("onclose:"+JSON.parse(error));};
