@@ -7,11 +7,10 @@ goog.require('goog.ui.ComboBox');
 goog.require('goog.ui.ComboBoxItem');
 goog.require('goog.ui.MenuSeparator');
 
-
-
 goog.require('hetima.signal.SignalClient');
 goog.require('hetima.signal.Caller');
 goog.require('hetima.util.UUID');
+goog.require('hetima.util.BencodeHelper');
 goog.require('hetima.signal.UserInfo');
 
 //goog.require('hetima.util.Encoder');
@@ -119,48 +118,82 @@ function init()
     mMyAddress = hetima.util.UUID.getID();
     console.log("::uuid="+mMyAddress);
     mCallerList = new hetima.signal.UserInfo();
-    //mCaller = new hetima.signal.Caller();
-    //mCaller.setEventListener(mSignalObserver);
     mSignalClient = new hetima.signal.SignalClient("ws://localhost:8080");
-    mSignalClient.setPeer(mCallerObserver);
+    mSignalClient.setPeer(mSignalObserver);
 }
 
-var mSignalObserver = new (function() {
+var mCallerObserver = new (function() {
     this.onReceiveMessage = function(caller, message) {
-	console.log("::onReceiveMessage");
-	mReceiveMessageField.value = message;
+	console.log("::onReceiveMessage:"+message);
+	console.log("---"+message.contentType);
     };
     this.onIceCandidate = function(caller,event){
-	console.log("::onIceCandidate");
-	if(!event.candidate) {
-	    mLocalSDPField.value = caller.getRawPeerConnection().localDescription.sdp;
-	}
+	console.log("::onIceCandidate:"+event);
     };
     this.onSetSessionDescription = function(caller,event){
-	console.log("::onSetSessionDescription");
+	console.log("::onSetSessionDescription:"+event);
     };
 });
 
-var mCallerObserver = new(function() 
+var mSignalClientAdapter = new (function() {
+    this.sendAnswer = function(to,from,sdp) {
+	console.log("+++sendAnswer():to="+to+",from="+from+"\n");
+	mSignalClient.unicastMessage(to, from, sdp, "answer");
+    };
+    this.sendOffer = function(to,from,sdp) {
+	console.log("+++sendOffer():to="+to+",from="+from+"\n");
+	mSignalClient.unicastMessage(to, from, sdp, "offer");
+    };
+    this.sendIceCandidate = function(to,from,candidate) {
+	console.log("+++sendIceCandidate():to="+to+",from="+from+"\n");
+	mSignalClient.unicastMessage(to, from, candidate, "candidate");
+    };
+});
+
+var mSignalObserver = new(function() 
 {
-    this.onReceiveAnswer = function(v) {
-	console.log("+++onReceiveAnswer()\n");
-    };
-    this.addIceCandidate = function(v) {
-	console.log("+++addIceCandidate()\n");
-    };
-    this.startAnswerTransaction = function(v) {
-	console.log("+++startAnswerTransaction()\n");
-    };
     this.onJoinNetwork = function(v) {
 	console.log("+++onJoinNetwork(si)\n");
 	console.log("---" + v.content);
 	putItem(v["from"]);
     };
-    this.onReceiveMessage = function(v) {
-	console.log("+++onReceivceMessage("+v+")\n");
-	putItem(v["from"]);
-	goog.dom.$('receive').value += hetima.util.Encoder.toText(v.content) + "\n";
+    this.onReceiveMessage = function(message) {
+	console.log("+++onReceivceMessage("+message+")from="+message["from"]);
+	putItem(message["from"]);
+
+	if("message" == message.contentType) {
+	    goog.dom.$('receive').value += hetima.util.Encoder.toText(v.content) + "\n";
+	}
+	else if("answer" == message.contentType) {
+	    var callerinfo = mCallerList.findInfo(message["from"]);
+	    var caller = callerinfo.content;
+	    caller.setRemoteSDP("answer", hetima.util.Encoder.toText(message.content));
+	}
+	else if("offer" == message.contentType) {
+	    var callerinfo = mCallerList.findInfo(message["from"]);
+	    var caller;
+	    if(callerinfo == undefined) {
+		caller = new hetima.signal.Caller(mMyAddress).setTargetUUID(message["from"]);
+		caller.setEventListener(mCallerObserver);
+		caller.setSignalClient(mSignalClientAdapter);
+		mCallerList.add(message["from"], caller);
+		caller.createPeerConnection();
+	    } else {
+		caller = callerinfo.content;
+	    }
+	    caller.setRemoteSDP("offer", hetima.util.Encoder.toText(message.content));
+	    caller.createAnswer();
+	}
+	else if("candidate" == message.contentType) {
+	    var callerinfo = mCallerList.findInfo(message["from"]);
+	    var caller = callerinfo.content;
+	    caller.addIceCandidate(
+		hetima.util.BencodeHelper.buffer2Text(message.content));
+	}
+	else {
+	    console.log("::ASSRET::#################################");
+	}
+
     };
 });
 
@@ -195,8 +228,10 @@ function onClickConnect()
     if(addr == undefined || addr == null || addr == "broadcast") {
 	return;
     }
-    var caller = new hetima.util.Caller(mMyAddress).setTargetUUID(addr);
-    mCallerList.add(uuid, caller);
+    var caller = new hetima.signal.Caller(mMyAddress).setTargetUUID(addr);
+    caller.setEventListener(mCallerObserver);
+    caller.setSignalClient(mSignalClientAdapter);
+    mCallerList.add(addr, caller);
     caller.createPeerConnection();
     caller.createOffer();
 }

@@ -1,5 +1,6 @@
 goog.provide('hetima.util.BencodeTest');
 goog.require('hetima.util.Bencode');
+goog.require('hetima.util.BencodeHelper');
 goog.require('hetima.util.Bdecode');
 goog.require('hetima.util.ArrayBuilder');
 goog.require('goog.testing.jsunit');
@@ -20,6 +21,19 @@ function testS() {
 	assertEquals(100, ret.test2);
 	assertEquals("abc", ret.test3);
     }
+
+    { //diction
+	var decode = new hetima.util.Bdecode();
+	var ret = decode.decodeArrayBuffer(arraybuilder.getUint8Array(), 0, arraybuilder.getLength());
+	{//---------
+	    var b3 = hetima.util.BencodeHelper.buffer2Text(ret);
+	    assertEquals(10, b3.test);
+	    assertEquals(100, b3.test2);
+	    assertEquals("abc", b3.test3);
+	}
+
+    }
+
 }
 
 function testArray() {
@@ -42,12 +56,12 @@ function testS2() {
     var arraybuilder = bencode.encodeObject(_obj);
     assertEquals("d4:testi10e5:test2i100e5:test33:abc5:test4li0e3:efgee", arraybuilder.toText());
 
+
     var bdecode = new hetima.util.Bdecode("text");
     var ret = bdecode.decodeArrayBuffer(arraybuilder.getUint8Array(), 0, arraybuilder.getLength());
     assertEquals(10, ret.test);
     assertEquals(100, ret.test2);
     assertEquals("abc", ret.test3);
-    
 }
 
 function testDecodeList() {
@@ -113,6 +127,9 @@ function testDecodeTextS() {
 	assertEquals(0x64, ret[3]);
 	assertEquals(0x65, ret[4]);
 	assertEquals(0x66, ret[5]);
+
     }
+
+
 }
 

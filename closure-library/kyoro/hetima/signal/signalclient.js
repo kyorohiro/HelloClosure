@@ -13,9 +13,6 @@ hetima.signal.SignalClient = function (url) {
 //    this.mAutoConnect = true;
 
     this.mPeer = new (function() {
-	this.onReceiveAnswer = function(v) {console.log("+++onReceiveAnswer()\n");}
-	this.addIceCandidate = function(v) {console.log("+++addIceCandidate()\n");}
-	this.startAnswerTransaction = function(v) {console.log("+++startAnswerTransaction()\n");}
 	this.onJoinNetwork = function(v) {
 	    console.log("+++onJoinNetwork("+JSON.stringify(parsedData)+")");
 	}
@@ -30,7 +27,7 @@ hetima.signal.SignalClient = function (url) {
     };
 
     this.onReceiveMessage = function(message) {
-	console.log("+++onReceivceMessage("+JSON.stringify(message)+")");
+	console.log("+=+onReceivceMessage("+JSON.stringify(message)+")");
 	var body = message.content;
 	var v = {};
 
@@ -41,13 +38,9 @@ hetima.signal.SignalClient = function (url) {
 	console.log("::::::::::::::::onReeive"+v.contentType+","+v.from);
 	if ("join" === v.contentType) {
 	    this.mPeer.onJoinNetwork(v);
-	} else if ("answer"=== v.contentType) {
-	    this.mPeer.onReceiveAnswer(v)
-	} else if ("offer" === v.contentType) {
-	    this.mPeer.startAnswerTransaction("server",v);
-	} else if("candidate" == v.contentType){
-	    this.mPeer.addIceCandidate(v);
 	} else if("message" == v.contentType){
+	    this.mPeer.onReceiveMessage(v);
+	} else {
 	    this.mPeer.onReceiveMessage(v);
 	}
     };
@@ -69,25 +62,31 @@ hetima.signal.SignalClient = function (url) {
 	b["contentType"] = contentType;
 	b["body"]        = content;
 	v["content"]     = b;
-	this.ws.send(_this.mBencoder.encodeObject(v).getUint8Array().buffer);
+	var _wsdata = _this.mBencoder.encodeObject(v).getUint8Array();
+	console.log("---" + hetima.util.Encoder.toText(_wsdata));
+	this.ws.send(_wsdata.buffer);
     };
 
-    this.unicastMessage = function(to, from, content) {
+    this.unicastMessage = function(to, from, content, contentType) {
 	console.log("::::::::::::::::unicastMessage : to="+to+",from="+from+",content="+content);
+	if(contentType == undefined) {
+	    contentType = "message";
+	}
 	var v = {};
 	var b = {};
 	v["to"]          = to;
 	v["from"]        = from;
 	v["messageType"] = "unicast";
-	b["contentType"] = "message";
+	b["contentType"] = contentType;
 	b["body"]        = content;
 	v["content"]     = b;
-	this.ws.send(_this.mBencoder.encodeObject(v).getUint8Array().buffer);
+	var _wsdata = _this.mBencoder.encodeObject(v).getUint8Array();
+	console.log("---" + hetima.util.Encoder.toText(_wsdata));
+	this.ws.send(_wsdata.buffer);
     };
 
     this.ws.onmessage = function(m) {
 	console.log("+++("+hetima.util.Encoder.toText(new Uint8Array(m.data))+")");
-//	var parsedData = _this.mBdecoder.decodeArrayBuffer(m.data, 0, m.data.byteLength);
 	var parsedData = _this.mBdecoder.decodeArrayBuffer(new Uint8Array(m.data), 0, m.data.byteLength);
 	_this.onReceiveMessage(parsedData);
     };

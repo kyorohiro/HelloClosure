@@ -24,6 +24,8 @@ hetima.signal.Caller = function Caller(id) {
 	    console.log("+++sendAnswer()\n");}
 	this.sendOffer = function(to,from,sdp) {
 	    console.log("+++sendOffer()\n");}
+	this.sendIceCandidate = function(to,from,candidate) {
+	    console.log("+++sendIceCandidate()\n");}
     });
     
     this.setEventListener =function(observer) {
@@ -75,9 +77,9 @@ hetima.signal.Caller = function Caller(id) {
 	    this.setChannelEvents();
 	    this.mPc.onicecandidate = function (event) {//RTCIceCandidateEvent
 		if(event.candidate) {
-		    console.log("+onIceCandidate("+event+","+event.candidate+"):"
-				+hetima.signal.Caller.iceCandidateType(_this.mPc.localDescription.sdp));
+		    console.log("+onIceCandidate("+event+","+event.candidate+"):"+hetima.signal.Caller.iceCandidateType(_this.mPc.localDescription.sdp));
 		    _this.mObserver.onIceCandidate(_this, event);
+		    _this.mSignalClient.sendIceCandidate( _this.getTargetUUID(), _this.getMyUUID(), event.candidate);
 		} else {
 		    _this.mObserver.onIceCandidate(_this, event);
 		    console.log("+onIceCandidate(null)");

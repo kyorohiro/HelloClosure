@@ -37,13 +37,14 @@ hetima.util.Bencode = function (mode) {
 	    }
 	    builder.appendText("e");
 	}
-	else if( type == "[object Object]") {
+	else {// if( type == "[object Object]") {
 	    builder.appendText("d");
 	    for(key in _obj) {
 		builder.appendText(""+key.length+":"+key);
 		this.__encode(_obj[key],builder);
 	    }
 	    builder.appendText("e");
-	}
+	} 
+
     }	
 };
