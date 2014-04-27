@@ -68,8 +68,8 @@ AppView = function() {
 	    _this.mUnconnectedAddressComboBox.setUseDropdownArrow(true);
 	    _this.mUnconnectedAddressComboBox.setDefaultText("broadcast");
 	    _this.mUnconnectedAddressComboBox.addItem(new goog.ui.MenuSeparator());
-	    _this.mUnconnectedAddressComboBox.addItem(new goog.ui.ComboBoxItem("broadcast"));
-	    _this.mUnconnectedAddressComboBox.addItem(new goog.ui.MenuSeparator());
+//	    _this.mUnconnectedAddressComboBox.addItem(new goog.ui.ComboBoxItem("broadcast"));
+//	    _this.mUnconnectedAddressComboBox.addItem(new goog.ui.MenuSeparator());
 	    _this.mUnconnectedAddressComboBox.render(_unconnectedAddressDom);
 	}	
     };
@@ -82,14 +82,15 @@ AppView = function() {
 	var _connectedAddressDom  = goog.dom.createDom("span"  ,{id:"address"}, "");
 	
 	goog.dom.appendChild(document.body, goog.dom.createDom("div", {}, "[[send/receive]]"));
-	goog.dom.appendChild(document.body, _connectedAddressDom);
+//	goog.dom.appendChild(document.body, _connectedAddressDom);
+//	goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+	goog.dom.appendChild(document.body, _this.mSendMessageField);
 	goog.dom.appendChild(document.body, goog.dom.createDom("br"));
 	goog.dom.appendChild(document.body, _this.mSendMessageButton);
 	goog.dom.appendChild(document.body, goog.dom.createDom("br"));
-	goog.dom.appendChild(document.body, _this.mSendMessageField);
-	goog.dom.appendChild(document.body, goog.dom.createDom("br"));
 	goog.dom.appendChild(document.body, _this.mReceiveMessageField);
-		
+	goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+
 	_this.mSendMessageButton.onclick = _this.onClickSendMessage;
     };
     

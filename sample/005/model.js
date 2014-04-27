@@ -17,10 +17,6 @@ goog.require('hetima.signal.UserInfo');
 goog.require('AppView');
 
 
-
-// handshake ui
-var mView;
-
 AppModel =function() 
 {
     var _this = this;
@@ -29,7 +25,7 @@ AppModel =function()
     this.mCallerList;
 
     //
-    // 
+    // receive notification event from this class.
     //
     this.mObserver = new (function(){
 	var _own = this;
@@ -85,9 +81,13 @@ AppModel =function()
 	}
     });
 
+    //
+    // registed then, receive notification event from this class.
+    //
     this.setEventListener = function(observer) {
 	_this.mObserver.decorator = observer;
     };
+
 
     this.mCallerObserver = new (function() {
 	this.onReceiveMessage = function(caller, message) {
@@ -139,7 +139,6 @@ AppModel =function()
 	    
 	    this.onReceiveMessage = function(message) {
 		console.log("++[s]+onReceivceMessage("+message+")from="+message["from"]);
-		_this.mView.putItem(message["from"]);
 		
 		if("message" == message.contentType) {
 		    // 
@@ -179,10 +178,6 @@ AppModel =function()
     );
 
 
-    this.setInitValue = function(view)
-    {
-	_this.mView = view;
-    }
     this.init = function()
     {
 	console.log("init()");
@@ -192,12 +187,18 @@ AppModel =function()
 	_this.mSignalClient = new hetima.signal.SignalClient("ws://localhost:8080");
 	_this.mSignalClient.setPeer(_this.mSignalObserver);
     };
-    
+
+    //
+    // start find device
+    //
     this.start = function()
     {
 	_this.mSignalClient.join(_this.mMyAddress);
     };
-    
+
+    //
+    // connect device
+    //
     this.connect = function(to)
     {
 	var caller = new hetima.signal.Caller(_this.mMyAddress).setTargetUUID(to);
@@ -208,6 +209,9 @@ AppModel =function()
 	caller.createOffer();
     };
 
+    //
+    // send message
+    //
     this.sendMessage = function(to, message) 
     {
 	var callerinfo = _this.mCallerList.findInfo(to);
@@ -216,4 +220,5 @@ AppModel =function()
 	if(caller == undefined) {return;}
 	caller.sendMessage(message);
     };
+
 }
