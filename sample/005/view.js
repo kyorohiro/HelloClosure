@@ -26,7 +26,7 @@ AppView = function() {
     this.mSendMessageButton;
     this.mSendMessageField;
     this.mReceiveMessageField;
-    this.mConnectedAddressComboBox;
+//    this.mConnectedAddressComboBox;
     
     // model 
     this.mModel;
@@ -41,6 +41,7 @@ AppView = function() {
 
     this.setInitValue = function(model) {
 	_this.mModel = model;
+	_this.mModel.setEventListener(_this.mListener);
     };
 
     this.initHandshakeUI = function() {
@@ -88,17 +89,7 @@ AppView = function() {
 	goog.dom.appendChild(document.body, _this.mSendMessageField);
 	goog.dom.appendChild(document.body, goog.dom.createDom("br"));
 	goog.dom.appendChild(document.body, _this.mReceiveMessageField);
-	
-	{
-	    _this.mConnectedAddressComboBox = new goog.ui.ComboBox();
-	    _this.mConnectedAddressComboBox.setUseDropdownArrow(true);
-	    _this.mConnectedAddressComboBox.setDefaultText("broadcast");
-	    _this.mConnectedAddressComboBox.addItem(new goog.ui.MenuSeparator());
-	    _this.mConnectedAddressComboBox.addItem(new goog.ui.ComboBoxItem("broadcast"));
-	    _this.mConnectedAddressComboBox.addItem(new goog.ui.MenuSeparator());
-	    _this.mConnectedAddressComboBox.render(_connectedAddressDom);
-	}
-	
+		
 	_this.mSendMessageButton.onclick = _this.onClickSendMessage;
     };
     
@@ -138,6 +129,42 @@ AppView = function() {
     this.onClickSendMessage = function()
     {
 	console.log("click send message");
+	var addr = _this.mUnconnectedAddressComboBox.getValue();
+	if(addr == undefined || addr == null || addr == "broadcast") {
+	    return;
+	}
+	var message = _this.mSendMessageField.value;
+	console.log("click send message addr="+addr+",message="+message);
+	_this.mModel.sendMessage(addr, message);
     };
+
+    this.mListener = new (function(){
+	this.onError = function(model, event) {
+	    console.log("++[m]+onError:"+event);
+	};
+	this.onClose = function(model, event) {
+	    console.log("++[m]+onError:"+event);
+	};
+	this.onFind = function(model, uuid) {
+	    console.log("++[m]+onConnect:"+uuid);
+	    if( uuid != undefined ) {
+		_this.putItem(uuid);
+	    }
+	};
+	this.onCallerOpen = function(model, caller, event) {
+	    console.log("++[m]+onConnect:"+event);
+	};
+	this.onCallerReceiveMessage = function(model, caller, message) {
+	    console.log("++[m]+onReceiveMessage:"+message);
+	    _this.mReceiveMessageField.value = ""+message;
+	};
+	this.onCallerClose = function(model, caller, event) {
+	    console.log("++[m]+onClose:"+event);
+	};
+	this.onCallerError = function(model, caller, error) {
+	    console.log("++[m]+onError:"+error);
+	};
+    });
+
     
 };

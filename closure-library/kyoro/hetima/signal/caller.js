@@ -8,17 +8,22 @@ hetima.signal.Caller = function Caller(id) {
     var _this = this;
     this.mPc = null;
     this.mPcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-    this.mPcConstraints = { 'optional': [{'DtlsSrtpKeyAgreement': true}]};//, {'RtpDataChannels': true }] };
+//    this.mPcConstraints = { 'optional': [{'DtlsSrtpKeyAgreement': true}]};//, {'RtpDataChannels': true }] };
+    this.mPcConstraints = { 'optional': [{'DtlsSrtpKeyAgreement': true}, {'RtpDataChannels': true }] };
     this.mMyUUID = id;
     this.mTargetUUID = "";
     this.mDataChannel = null;
     
     this.mObserver = new (function() {
-	this.onReceiveMessage = function(caller, message) {;}
+	this.onReceiveMessage = function(caller, message) {
+	    console.log("+++_ onReceiveMessage()\n");}
 	this.onIceCandidate = function(caller,event){;}
 	this.onSetSessionDescription = function(caller,event){;}
+	this.onNotifyError = function(caller, error){;}
+	this.onOpen = function(caller,event){;}
+	this.onClose = function(caller,event){;}
     });
-    
+
     this.mSignalClient = new (function() {
 	this.sendAnswer = function(to,from,sdp) {
 	    console.log("+++sendAnswer()\n");}
@@ -117,7 +122,9 @@ hetima.signal.Caller = function Caller(id) {
 				_this.mObserver.onSetSessionDescription(_this, _this.mPc.localDescription.type, _this.mPc.localDescription.sdp);
 				_this.mSignalClient.sendOffer(_this.getTargetUUID(), _this.getMyUUID(), _this.mPc.localDescription.sdp);
 			       },
-		    function(error) {console.log("+++onSetSessionDescriptionError" + error.toString());}
+		    function(error) {
+			_this.mObserver.onNotifyError(_this, error);
+		    }
 		);
 	    });
 	return this;
@@ -135,7 +142,9 @@ hetima.signal.Caller = function Caller(id) {
 			_this.mObserver.onSetSessionDescription(_this, _this.mPc.localDescription.type, _this.mPc.localDescription.sdp);
 			_this.mSignalClient.sendAnswer(_this.getTargetUUID(), _this.getMyUUID(), _this.mPc.localDescription.sdp);
 		    },
-		    function(error) {console.log("+++onSetSessionDescriptionError" + error.toString());}
+		    function(error) {
+			_this.mObserver.onNotifyError(_this, error);
+		    }
 		);});
 	return this;
     };
@@ -154,7 +163,11 @@ hetima.signal.Caller = function Caller(id) {
 	//
 	// #p2p message send
 	//
-	console.log("+++sendMessage()"+message+"\n");
+	console.log("+++sendMessage() message="+message
+		    +",from="+_this.mMyUUID
+		    +",to="+_this.mTargetUUID
+		    +"\n");
+
 	this.mDataChannel.send(message);
     };
     
@@ -179,11 +192,14 @@ hetima.signal.Caller = function Caller(id) {
 	    _this.mObserver.onReceiveMessage(_this, event.data);
 	};
 	this.mDataChannel.onopen = function(event) {
-	    console.log("############## onopen:"+event);
-	    //_this.mObserver.onOpen(_this, event.data);
+	    _this.mObserver.onOpen(_this, event);
 	};
-	this.mDataChannel.onerror = function(error) {console.log("onerror:"+JSON.parse(error));};
-	this.mDataChannel.onclose = function(error) {console.log("onclose:"+JSON.parse(error));};
+	this.mDataChannel.onerror = function(error) {
+	    _this.mObserver.onNotifyError(_this, error);
+	};
+	this.mDataChannel.onclose = function(event) {
+	    _this.mObserver.onClose(_this, event);
+	};
     };
     
 };
