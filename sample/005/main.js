@@ -12,9 +12,10 @@ goog.require('hetima.signal.Caller');
 goog.require('hetima.util.UUID');
 goog.require('hetima.util.BencodeHelper');
 goog.require('hetima.signal.UserInfo');
+goog.require('hetima.signal.Messenger');
 
 goog.require('AppView');
-goog.require('AppModel');
+//goog.require('AppModel');
 
 
 // handshake ui
@@ -32,7 +33,7 @@ function appmain()
     console.log("start app");
     mView = new AppView();
     mView.initUI();
-    mModel = new AppModel();
+    mModel = new hetima.signal.Messenger();
     mModel.init();
     mView.setInitValue(mModel);
 }

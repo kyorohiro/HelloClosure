@@ -1,4 +1,4 @@
-goog.provide('AppModel');
+goog.provide('hetima.signal.Messenger');
 goog.require('goog.dom');
 
 goog.require('goog.ui.ComboBox');
@@ -14,10 +14,12 @@ goog.require('hetima.util.UUID');
 goog.require('hetima.util.BencodeHelper');
 goog.require('hetima.signal.UserInfo');
 
-goog.require('AppView');
 
-
-AppModel =function() 
+//
+// 
+// send ascii or binary data.
+//
+hetima.signal.Messenger = function() 
 {
     var _this = this;
     this.mMyAddress;
@@ -87,7 +89,6 @@ AppModel =function()
     this.setEventListener = function(observer) {
 	_this.mObserver.decorator = observer;
     };
-
 
     this.mCallerObserver = new (function() {
 	this.onReceiveMessage = function(caller, message) {
