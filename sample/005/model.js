@@ -102,15 +102,15 @@ AppModel =function()
 	};
 	this.onNotifyError = function (caller, error){
 	    console.log("++[c]+onError:"+error.toString());
-	    _this.mObserver.onCallerError(this. caller, error);
+	    _this.mObserver.onCallerError(_this, caller, error);
 	}
 	this.onOpen = function(caller,event){
 	    console.log("++[c]+onOpen:"+event);
-	    _this.mObserver.onCallerOpen(this. caller, event);
+	    _this.mObserver.onCallerOpen(_this, caller, event);
 	}
 	this.onClose = function(caller,event){
 	    console.log("++[c]+onClose:"+event);
-	    _this.mObserver.onCallerClose(this. caller, event);
+	    _this.mObserver.onCallerClose(_this, caller, event);
 	}
     });
     
@@ -178,6 +178,9 @@ AppModel =function()
     );
 
 
+    //
+    // initialize
+    // 
     this.init = function()
     {
 	console.log("init()");

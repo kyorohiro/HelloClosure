@@ -23,11 +23,15 @@ hetima.signal.SignalServer = function (rootDir) {
 	    console.log("onRequest="+req.url);
 	    try {
 		var path =  _this.mRootDir + "/" + req.url.substring(1);
+		Fs.statSync(path);
 		var file = Fs.readFileSync(path);
 		res.writeHead(200, {'Content-Type': 'text/html'});
 		res.end(file);
 	    } catch(e) {
 		console.log(""+e);
+		res.writeHead(404);
+		res.write("404");
+		res.end();
 	    }
 	}).listen(port, host);
 	console.log("Server running at http://"+host+":"+port);
@@ -53,8 +57,8 @@ hetima.signal.SignalServer = function (rootDir) {
 
 		console.log("type:"+messageType+",to:"+to+",from:"+from);
 		{ // recent list
-		    console.log("to:"   + hetima.util.Encoder.toText(to));
-		    console.log("from:" + hetima.util.Encoder.toText(from));
+//		    console.log("to:"   + hetima.util.Encoder.toText(to));
+//		    console.log("from:" + hetima.util.Encoder.toText(from));
 		    _own.mUserInfos.add(hetima.util.Encoder.toText(from), websocket);
 		}
 		var _messageType = hetima.util.Encoder.toText(messageType);
@@ -71,10 +75,14 @@ hetima.signal.SignalServer = function (rootDir) {
 		    v["from"]        = from;
 		    var s=_this.mEncoder.encodeObject(v);
 		    _own.broadcastMessage(s.getUint8Array());
-		} else if(_messageType === "list") {
-		    var v = {};
-		    v["list"] = [];
-
+		} else if(_messageType ==="list") {
+		    var v = {}
+		    v["content"] = {};
+		    v["content"]["body"] = _own.mUserInfos.getList();
+		    v["content"]["contentType"] = "list";
+		    v["from"]        = from;
+		    var s=_this.mEncoder.encodeObject(v);
+		    _own.uniMessage(hetima.util.Encoder.toText(from), s.getUint8Array());
 		}
 	    });
 	});

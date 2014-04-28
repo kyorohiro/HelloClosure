@@ -139,6 +139,8 @@ AppView = function() {
 	_this.mModel.sendMessage(addr, message);
     };
 
+    
+
     this.mListener = new (function(){
 	this.onError = function(model, event) {
 	    console.log("++[m]+onError:"+event);
@@ -154,10 +156,13 @@ AppView = function() {
 	};
 	this.onCallerOpen = function(model, caller, event) {
 	    console.log("++[m]+onConnect:"+event);
+	    _this.putItem(caller.getTargetUUID());
 	};
+
 	this.onCallerReceiveMessage = function(model, caller, message) {
 	    console.log("++[m]+onReceiveMessage:"+message);
 	    _this.mReceiveMessageField.value = ""+message;
+	    _this.putItem(caller.getTargetUUID());
 	};
 	this.onCallerClose = function(model, caller, event) {
 	    console.log("++[m]+onClose:"+event);

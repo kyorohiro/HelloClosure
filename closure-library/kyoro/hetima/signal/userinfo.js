@@ -11,7 +11,11 @@ hetima.signal.UserInfo = function (num) {
     this.length = function() {
 	return this.mList.length;
     };
-    
+
+    this.getList = function() {
+	return this.mList;
+    };
+
     this.add = function (uuid, content) {
 	var v = {};
 	v.uuid = uuid;

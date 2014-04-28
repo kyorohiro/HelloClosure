@@ -35,7 +35,6 @@ function appmain()
     mModel = new AppModel();
     mModel.init();
     mView.setInitValue(mModel);
-    mModel.setInitValue(mView);
 }
 
 
