@@ -18,7 +18,6 @@ goog.require('hetima.util.Bencode');
 goog.require('hetima.util.Bdecode');
 goog.require('hetima.util.Encoder');
 
-//
 // 
 // send ascii or binary data.
 //
@@ -28,9 +27,6 @@ hetima.signal.Messenger = function()
     this.mMyAddress;
     this.mSignalClient;
     this.mCallerList
-    this.mBencoder = new hetima.util.Bencode();
-    this.mBdecoder = new hetima.util.Bdecode();
-    this.mEncoder = new hetima.util.Encoder();
     //
     // receive notification event from this class.
     //
@@ -231,8 +227,7 @@ hetima.signal.Messenger = function()
 	pack["messagetype"] = "direct";
 	pack["contenttype"] = "text";
 	pack["content"]     = message;
-	console.log("len="+_this.mBencoder.encodeObject(pack).getBuffer().length);
-	caller.sendMessage(hetima.util.Encoder.toText(_this.mBencoder.encodeObject(pack).getBuffer()));
+	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
     };
 
     this.transfer = function(pack)
@@ -251,7 +246,10 @@ hetima.signal.Messenger = function()
 	if(callerinfo == undefined) {return;}
 	var caller = callerinfo.content;
 	if(caller == undefined) {return;}
-	
-	caller.sendMessage(message);
+	var pack = {};
+	pack["messagetype"] = "relay";
+	pack["contenttype"] = "text";
+	pack["content"]     = message;
+	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
     };
 }
