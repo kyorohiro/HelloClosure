@@ -34,6 +34,13 @@ hetima.signal.HetimaPeer = function()
     };
 
     //
+    //
+    //
+    this.getMyAddress = function()
+    {
+	return this.messenger.mMyAddress;
+    };
+    //
     // registed then, receive notification event from this class.
     //
     this.setEventListener = function(observer) {
@@ -64,4 +71,19 @@ hetima.signal.HetimaPeer = function()
 	this.messenger.sendMessage(to, message, messagetype);
     };
 
+    //
+    // get peer list
+    //
+    this.requestPeerList = function(to, target)
+    {
+	if(target == undefined) {
+	    to = target;
+	}
+
+	var pack = {};
+	pack["messagetype"] = "direct";
+	pack["from"]        = mMyAddress;
+	pack["to"]          = to;
+	pack["target"]      = target;
+    };
 }
