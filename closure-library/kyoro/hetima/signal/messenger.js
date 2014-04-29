@@ -14,6 +14,9 @@ goog.require('hetima.util.UUID');
 goog.require('hetima.util.BencodeHelper');
 goog.require('hetima.signal.UserInfo');
 
+goog.require('hetima.util.Bencode');
+goog.require('hetima.util.Bdecode');
+goog.require('hetima.util.Encoder');
 
 //
 // 
@@ -24,8 +27,10 @@ hetima.signal.Messenger = function()
     var _this = this;
     this.mMyAddress;
     this.mSignalClient;
-    this.mCallerList;
-
+    this.mCallerList
+    this.mBencoder = new hetima.util.Bencode();
+    this.mBdecoder = new hetima.util.Bdecode();
+    this.mEncoder = new hetima.util.Encoder();
     //
     // receive notification event from this class.
     //
@@ -83,17 +88,10 @@ hetima.signal.Messenger = function()
 	}
     });
 
-    //
-    // registed then, receive notification event from this class.
-    //
-    this.setEventListener = function(observer) {
-	_this.mObserver.decorator = observer;
-    };
-
     this.mCallerObserver = new (function() {
 	this.onReceiveMessage = function(caller, message) {
 	    console.log("++[c]+onReceiveMessage:"+message +","+message.contentType);
-	    _this.mObserver.onCallerReceiveMessage(_this, caller, message);
+	    _this.mObserver.onCallerReceiveMessage(_this, caller, _this.transfer(message));
 	};
 	this.onIceCandidate = function(caller,event){
 	    console.log("++[c]+onIceCandidate:"+event);
@@ -193,6 +191,13 @@ hetima.signal.Messenger = function()
     };
 
     //
+    // registed then, receive notification event from this class.
+    //
+    this.setEventListener = function(observer) {
+	_this.mObserver.decorator = observer;
+    };
+
+    //
     // start find device
     //
     this.start = function()
@@ -222,7 +227,31 @@ hetima.signal.Messenger = function()
 	if(callerinfo == undefined) {return;}
 	var caller = callerinfo.content;
 	if(caller == undefined) {return;}
-	caller.sendMessage(message);
+	var pack = {};
+	pack["messagetype"] = "direct";
+	pack["contenttype"] = "text";
+	pack["content"]     = message;
+	console.log("len="+_this.mBencoder.encodeObject(pack).getUint8Array().length);
+	caller.sendMessage(_this.mBencoder.encodeObject(pack).getUint8Array().buffer);
     };
 
+    this.transfer = function(pack)
+    {
+	return hetima.util.Encoder.toText(pack);
+	//_this.mBdecoder.decodeArrayBuffer(
+	//    new Uint8Array(pack), 0, pack.byteLength);
+    }
+
+    //
+    // relay message
+    //
+    this.relayMessage = function(to, relay, message) 
+    {
+	var callerinfo = _this.mCallerList.findInfo(relay);
+	if(callerinfo == undefined) {return;}
+	var caller = callerinfo.content;
+	if(caller == undefined) {return;}
+	
+	caller.sendMessage(message.slice(0,10*1000));
+    };
 }

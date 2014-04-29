@@ -1,5 +1,7 @@
 goog.provide('hetima.util.Bencode');
+goog.require('hetima.util.Bdecode');
 goog.require('hetima.util.ArrayBuilder');
+
 
 hetima.util.Bencode = function (mode) {
     if(mode == undefined) {
@@ -48,3 +50,17 @@ hetima.util.Bencode = function (mode) {
 
     }	
 };
+
+
+hetima.util.Bencode.sEinst = new hetima.util.Bencode();
+hetima.util.Bencode.sDinst = new hetima.util.Bdecode();
+hetima.util.Bencode.encode = function(_obj) {
+    var ret = hetima.util.Bencode.sEinst.encodeObject(_obj)
+    return ret.getBuffer();//getUint8Array().subarray(0, ret.getLength());
+};
+
+hetima.util.Bencode.decode = function(_obj) {
+    var ret = hetima.util.Bencode.sDinst.decodeArrayBuffer(_obj, 0, _obj.length);
+    return ret;
+}
+

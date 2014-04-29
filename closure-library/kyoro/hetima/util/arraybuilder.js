@@ -55,6 +55,14 @@ hetima.util.ArrayBuilder = function (size, mode) {
     this.getUint8Array = function() {
 	return this.mBuffer
     };
+
+    this.getBuffer = function() {
+	if(_this.mMode == "client") {
+	    return this.mBuffer.subarray(0, _this.getLength());
+	} else {
+	    return this.mBuffer.slice(0, _this.getLength()); 
+	}
+    };
     
     this.toUint8Array = function() {
 	var buffer = new Uint8Array(new ArrayBuffer(this.mLength));

@@ -2,6 +2,7 @@ goog.provide('hetima.util.BencodeTest');
 goog.require('hetima.util.Bencode');
 goog.require('hetima.util.BencodeHelper');
 goog.require('hetima.util.Bdecode');
+goog.require('hetima.util.Encoder');
 goog.require('hetima.util.ArrayBuilder');
 goog.require('goog.testing.jsunit');
 
@@ -129,7 +130,18 @@ function testDecodeTextS() {
 	assertEquals(0x66, ret[5]);
 
     }
+}
 
+function testDecodeTextSSS() {
+    { //text
+	var input = {};
+	input["a"] = "b";
+	var ret = hetima.util.Bencode.encode(input);
+	assertEquals(8, ret.length);
+	assertEquals("d1:a1:be", hetima.util.Encoder.toText(ret));
 
+	var _obj = hetima.util.Bencode.decode(ret);
+	assertEquals("b", hetima.util.Encoder.toText(_obj["a"]));
+    }
 }
 
