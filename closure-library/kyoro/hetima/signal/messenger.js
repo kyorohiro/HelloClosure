@@ -231,14 +231,14 @@ hetima.signal.Messenger = function()
 	pack["messagetype"] = "direct";
 	pack["contenttype"] = "text";
 	pack["content"]     = message;
-	console.log("len="+_this.mBencoder.encodeObject(pack).getUint8Array().length);
-	caller.sendMessage(_this.mBencoder.encodeObject(pack).getUint8Array().buffer);
+	console.log("len="+_this.mBencoder.encodeObject(pack).getBuffer().length);
+	caller.sendMessage(hetima.util.Encoder.toText(_this.mBencoder.encodeObject(pack).getBuffer()));
     };
 
     this.transfer = function(pack)
     {
-	return hetima.util.Encoder.toText(pack);
-	//_this.mBdecoder.decodeArrayBuffer(
+	return hetima.util.Bencode.decode(pack);
+	//   _this.mBdecoder.decodeArrayBuffer(
 	//    new Uint8Array(pack), 0, pack.byteLength);
     }
 
@@ -252,6 +252,6 @@ hetima.signal.Messenger = function()
 	var caller = callerinfo.content;
 	if(caller == undefined) {return;}
 	
-	caller.sendMessage(message.slice(0,10*1000));
+	caller.sendMessage(message);
     };
 }

@@ -11,6 +11,10 @@ hetima.util.ArrayBuilder = function (size, mode) {
     
     this.mLength = 0;
     var _this = this;
+    this.clear = function() {
+	_this.mLength = 0;
+    };
+
     this.appendText = function(text) {
 	this.update(text.length);
 	for(var i=0;i<text.length;i++) {

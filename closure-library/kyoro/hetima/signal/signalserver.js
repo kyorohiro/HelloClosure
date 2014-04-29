@@ -14,8 +14,8 @@ hetima.signal.SignalServer = function (rootDir) {
     this.mHttpServer = null;
     this.mWsserverSocket = null;
     this.mUserInfos = new hetima.signal.UserInfo(10);
-    this.mEncoder = new hetima.util.Bencode("server");
-    this.mDecoder = new hetima.util.Bdecode("binary", "sercer");
+    hetima.util.Bencode.sMode  = "server";
+    hetima.util.Bencode.sType  = "binary";
     var _this = this;
 
     this.startServer = function(host, port) {
@@ -48,7 +48,7 @@ hetima.signal.SignalServer = function (rootDir) {
 	    var websocket = req.accept(null, req.origin);
 
 	    websocket.on('message', function(mes) {
-		var cont = _this.mDecoder.decodeArrayBuffer(mes.binaryData, 0, mes.binaryData.length);
+		var cont = hetima.util.Bencode.decode(mes.binaryData);
 		console.log("mes:"+JSON.stringify(cont));
 		var messageType   = cont["messageType"];
 		var content       = cont["content"];
@@ -67,22 +67,22 @@ hetima.signal.SignalServer = function (rootDir) {
 		    v["content"] = content;
 		    v["to"]      = to;
 		    v["from"]    = from;
-		    var s=_this.mEncoder.encodeObject(v);
-		    _own.uniMessage(hetima.util.Encoder.toText(to), s.getUint8Array());
+		    var s = hetima.util.Bencode.encode(v);
+		    _own.uniMessage(hetima.util.Encoder.toText(to), s);
 		} else if(_messageType ==="broadcast") {
 		    var v = {}
 		    v["content"]     = content;
 		    v["from"]        = from;
-		    var s=_this.mEncoder.encodeObject(v);
-		    _own.broadcastMessage(s.getUint8Array());
+		    var s= hetima.util.Bencode.encode(v);
+		    _own.broadcastMessage(s);
 		} else if(_messageType ==="list") {
 		    var v = {}
 		    v["content"] = {};
 		    v["content"]["body"] = _own.mUserInfos.getList();
 		    v["content"]["contentType"] = "list";
 		    v["from"]        = from;
-		    var s=_this.mEncoder.encodeObject(v);
-		    _own.uniMessage(hetima.util.Encoder.toText(from), s.getUint8Array());
+		    var s= hetima.util.Bencode.encode(v);
+		    _own.uniMessage(hetima.util.Encoder.toText(from), s);
 		}
 	    });
 	});

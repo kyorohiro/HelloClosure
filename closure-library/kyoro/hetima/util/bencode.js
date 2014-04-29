@@ -52,15 +52,42 @@ hetima.util.Bencode = function (mode) {
 };
 
 
-hetima.util.Bencode.sEinst = new hetima.util.Bencode();
-hetima.util.Bencode.sDinst = new hetima.util.Bdecode();
+
+hetima.util.Bencode.sMode  = "client";
+hetima.util.Bencode.sType  = "binary";
+hetima.util.Bencode.sEinst = undefined;
+hetima.util.Bencode.sDinst = undefined;
+hetima.util.Bencode.sCash  = undefined;
+
 hetima.util.Bencode.encode = function(_obj) {
+    if(hetima.util.Bencode.sEinst == undefined) {
+	hetima.util.Bencode.sEinst = new hetima.util.Bencode(
+	    hetima.util.Bencode.sMode,
+	    hetima.util.Bencode.sType);
+    }
     var ret = hetima.util.Bencode.sEinst.encodeObject(_obj)
-    return ret.getBuffer();//getUint8Array().subarray(0, ret.getLength());
+    return ret.getBuffer();
 };
 
+
 hetima.util.Bencode.decode = function(_obj) {
-    var ret = hetima.util.Bencode.sDinst.decodeArrayBuffer(_obj, 0, _obj.length);
-    return ret;
+    if(hetima.util.Bencode.sDinst == undefined) {
+	hetima.util.Bencode.sDinst = new hetima.util.Bdecode(
+	    hetima.util.Bencode.sMode,
+	    hetima.util.Bencode.sType);
+    }
+    if(hetima.util.Bencode.sCash == undefined) {
+	hetima.util.Bencode.sCash = new hetima.util.ArrayBuilder(100, hetima.util.Bencode.sMode);
+    }
+    var type = Object.prototype.toString.apply(_obj);
+    if( type == "[object String]") {
+	hetima.util.Bencode.sCash.clear();
+	hetima.util.Bencode.sCash.appendText(_obj);
+	var ret = hetima.util.Bencode.sDinst.decodeArrayBuffer(hetima.util.Bencode.sCash.getBuffer(), 0, hetima.util.Bencode.sCash.getLength());
+	return ret
+    } else {
+	var ret = hetima.util.Bencode.sDinst.decodeArrayBuffer(_obj, 0, _obj.length);
+	return ret
+    };
 }
 

@@ -13,6 +13,7 @@ goog.require('hetima.signal.Caller');
 goog.require('hetima.util.UUID');
 goog.require('hetima.util.BencodeHelper');
 goog.require('hetima.signal.UserInfo');
+goog.require('hetima.util.Encoder');
 
 
 AppView = function() {
@@ -102,11 +103,13 @@ AppView = function() {
 	for(var i=0;i<_this.mUnconnectedAddressComboBox.getItemCount();i++)
 	{
 	    var item = _this.mUnconnectedAddressComboBox.getItemAt(i);
+	    console.log("++"+itemName+"+"+item.getContent())
 	    if(itemName == item.getContent()) {
+		console.log("+SSSSSSSSSSSSSSSS+")
 		return;
 	    }
 	}
-	
+	console.log("+ZZZZZZZZZZZZZZZ+")
 	_this.mUnconnectedAddressComboBox.addItem(new goog.ui.ComboBoxItem(itemName));
 	_this.mUnconnectedAddressComboBox.addItem(new goog.ui.MenuSeparator());
     };
@@ -161,7 +164,7 @@ AppView = function() {
 
 	this.onCallerReceiveMessage = function(model, caller, message) {
 	    console.log("++[m]+onReceiveMessage:"+message);
-	    _this.mReceiveMessageField.value = ""+message;
+	    _this.mReceiveMessageField.value = ""+hetima.util.Encoder.toText(message["content"]);
 	    _this.putItem(caller.getTargetUUID());
 	};
 	this.onCallerClose = function(model, caller, event) {

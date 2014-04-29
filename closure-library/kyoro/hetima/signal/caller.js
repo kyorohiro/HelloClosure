@@ -8,9 +8,10 @@ hetima.signal.Caller = function Caller(id) {
     var _this = this;
     this.mPc = null;
     this.mPcConfig = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
-    this.mPcConstraints = { 'optional': [{'DtlsSrtpKeyAgreement': true}]};//, {'RtpDataChannels': true }] };
+//    this.mPcConstraints = { 'optional': [{'DtlsSrtpKeyAgreement': true}]};//, {'RtpDataChannels': true }] };
 //    this.mPcConstraints = { 'optional': [{'DtlsSrtpKeyAgreement': true}, {'RtpDataChannels': true }] };
-//    this.mPcConstraints = { 'optional': [{'RtpDataChannels': true }] };
+    this.mPcConstraints = { 'optional': [{'RtpDataChannels': true }] };
+//    this.mPcConstraints = { 'optional': [] };
     this.mMyUUID = id;
     this.mTargetUUID = "";
     this.mDataChannel = null;
@@ -78,7 +79,7 @@ hetima.signal.Caller = function Caller(id) {
 	console.log("+++createPeerConnection()\n");
 	try {
 	    this.mPc = new webkitRTCPeerConnection(this.mPcConfig, this.mPcConstraints);
-	    this.mDataChannel = this.mPc.createDataChannel("channel",{});
+	    this.mDataChannel = this.mPc.createDataChannel("channel",{reliable: true});
 	    
 	    this.setChannelEvents();
 	    this.mPc.onicecandidate = function (event) {//RTCIceCandidateEvent
