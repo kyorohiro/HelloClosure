@@ -43,8 +43,8 @@ hetima.signal.HetimaPeer = function()
     //
     // registed then, receive notification event from this class.
     //
-    this.setEventListener = function(observer) {
-	this.messenger.setEventListener(observer);
+    this.addEventListener = function(observer) {
+	this.messenger.addEventListener(observer);
     };
 
     //

@@ -42,7 +42,7 @@ AppView06 = function() {
 
     this.setInitValue = function(model) {
 	_this.mModel = model;
-	_this.mModel.setEventListener(_this.mListener);
+	_this.mModel.addEventListener(_this.mListener);
     };
 
     this.initHandshakeUI = function() {

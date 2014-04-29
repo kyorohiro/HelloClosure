@@ -32,55 +32,76 @@ hetima.signal.Messenger = function()
     //
     this.mObserver = new (function(){
 	var _own = this;
-	this.decorator = undefined;
+	this.decorator = new Array();//undefined;
 	this.onError = function(model, event) {
 	    console.log("++[m]+onError:"+event);
-	    if(_own.decorator == undefined || _own.decorator.onError == undefined) {
-		return;
+	    for(var i=0;i<_own.decorator.length;i++) {
+		var d = _own.decorator[i]
+		if(d == undefined || d.onError == undefined) {
+		    continue;
+		}
+		d.onError(model, event);
 	    }
-	    _own.decorator.onError(model, event);
 	};
 	this.onClose = function(model, event) {
 	    console.log("++[m]+onError:"+event);
-	    if(_own.decorator == undefined || _own.decorator.onClose == undefined) {
-		return;
+	    for(var i=0;i<_own.decorator.length;i++) {
+		var d = _own.decorator[i]
+		if(d == undefined || d.onClose == undefined) {
+		    continue;
+		}
+		d.onClose(model, event);
 	    }
-	    _own.decorator.onClose(model, event);
 	};
 	this.onFind = function(model, uuid) {
 	    console.log("++[m]+onConnect:"+uuid);
-	    if(_own.decorator == undefined || _own.decorator.onFind == undefined) {
-		return;
+	    for(var i=0; i<_own.decorator.length;i++) {
+		var d = _own.decorator[i]
+		if(d == undefined || d.onFind == undefined) {
+		    continue;
+		}
+		d.onFind(model, uuid);
 	    }
-	    _own.decorator.onFind(model, uuid);
 	};
 	this.onCallerOpen = function(model, caller, event) {
 	    console.log("++[m]+onConnect:"+event);
-	    if(_own.decorator == undefined || _own.decorator.onCallerOpen == undefined) {
-		return;
+	    for(var i=0; i<_own.decorator.length;i++) {
+		var d = _own.decorator[i]
+		if(d == undefined || d.onCallerOpen == undefined) {
+		    continue;
+		}
+		d.onCallerOpen(model, caller, event);
 	    }
-	    _own.decorator.onCallerOpen(model, caller, event);
 	};
 	this.onCallerReceiveMessage = function(model, caller, message) {
 	    console.log("++[m]+onReceiveMessage:"+message);
-	    if(_own.decorator == undefined || _own.decorator.onCallerReceiveMessage == undefined) {
-		return;
+	    for(var i=0; i<_own.decorator.length;i++) {
+		var d = _own.decorator[i]
+		if(d == undefined || d.onCallerReceiveMessage == undefined) {
+		    continue;
+		}
+		d.onCallerReceiveMessage(model, caller, message);
 	    }
-	    _own.decorator.onCallerReceiveMessage(model, caller, message);
 	};
 	this.onCallerClose = function(model, caller, event) {
 	    console.log("++[m]+onClose:"+event);
-	    if(_own.decorator == undefined || _own.decorator.onCallerClose == undefined) {
-		return;
+	    for(var i=0; i<_own.decorator.length;i++) {
+		var d = _own.decorator[i]
+		if(d == undefined || d.onCallerClose == undefined) {
+		    continue;
+		}
+		d.onCallerClose(model, caller, event);
 	    }
-	    _own.decorator.onCallerClose(model, caller, event);
-	}
+	};
 	this.onCallerError = function(model, caller, error) {
 	    console.log("++[m]+onError:"+error);
-	    if(_own.decorator == undefined || _own.decorator.onCallerError == undefined) {
-		return;
+	    for(var i=0; i<_own.decorator.length;i++) {
+		var d = _own.decorator[i]
+		if(d == undefined || d.onCallerError == undefined) {
+		    continue;
+		}
+		d.onCallerError(model, caller, error);
 	    }
-	    _own.decorator.onCallerError(model, caller, error);
 	}
     });
 
@@ -201,8 +222,8 @@ hetima.signal.Messenger = function()
     //
     // registed then, receive notification event from this class.
     //
-    this.setEventListener = function(observer) {
-	_this.mObserver.decorator = observer;
+    this.addEventListener = function(observer) {
+	_this.mObserver.decorator.push(observer);
     };
 
     //
