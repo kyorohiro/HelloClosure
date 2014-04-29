@@ -240,8 +240,16 @@ hetima.signal.Messenger = function()
 	if(caller == undefined) {return;}
 	var pack = {};
 	pack["messagetype"] = messagetype;
-	pack["contenttype"] = "text";
 	pack["content"]     = message;
+	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
+    };
+
+    this.sendPack = function(to, pack) 
+    {
+	var callerinfo = _this.mCallerList.findInfo(to);
+	if(callerinfo == undefined) {return;}
+	var caller = callerinfo.content;
+	if(caller == undefined) {return;}
 	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
     };
 
@@ -261,9 +269,8 @@ hetima.signal.Messenger = function()
 	if(caller == undefined) {return;}
 	var pack = {};
 	pack["messagetype"] = "relay";
-	pack["to"]          = to;
 	pack["from"]        = mMyAddress;
-	pack["contenttype"] = "text";
+	pack["to"]          = to;
 	pack["content"]     = message;
 	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
     };
