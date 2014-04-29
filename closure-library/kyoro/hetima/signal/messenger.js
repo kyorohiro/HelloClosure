@@ -1,5 +1,4 @@
 goog.provide('hetima.signal.Messenger');
-goog.require('goog.dom');
 
 goog.require('goog.ui.ComboBox');
 goog.require('goog.ui.ComboBoxItem');
@@ -27,6 +26,7 @@ hetima.signal.Messenger = function()
     this.mMyAddress;
     this.mSignalClient;
     this.mCallerList
+
     //
     // receive notification event from this class.
     //
@@ -87,7 +87,19 @@ hetima.signal.Messenger = function()
     this.mCallerObserver = new (function() {
 	this.onReceiveMessage = function(caller, message) {
 	    console.log("++[c]+onReceiveMessage:"+message +","+message.contentType);
-	    _this.mObserver.onCallerReceiveMessage(_this, caller, _this.transfer(message));
+	    var _obj = _this.transfer(message);
+	    var _type = hetima.util.Encoder.toText(_obj["messagetype"]);
+	    if(_type == "direct") {
+		_this.mObserver.onCallerReceiveMessage(_this, caller, _obj);		
+	    } else if( _type == "relay"){
+		var toAddr = _obj["to"];
+		if(toAddr == _this.mMyAddress) {
+		    _this.mObserver.onCallerReceiveMessage(_this, caller, _obj);		
+		    return;
+		} else {
+		    _this.sendMessage(toAddr, message, "relay"); 
+		}
+	    }
 	};
 	this.onIceCandidate = function(caller,event){
 	    console.log("++[c]+onIceCandidate:"+event);
@@ -217,14 +229,17 @@ hetima.signal.Messenger = function()
     //
     // send message
     //
-    this.sendMessage = function(to, message) 
+    this.sendMessage = function(to, message, messagetype) 
     {
+	if(messagetype == undefined) {
+	    messagetype = "direct";
+	}
 	var callerinfo = _this.mCallerList.findInfo(to);
 	if(callerinfo == undefined) {return;}
 	var caller = callerinfo.content;
 	if(caller == undefined) {return;}
 	var pack = {};
-	pack["messagetype"] = "direct";
+	pack["messagetype"] = messagetype;
 	pack["contenttype"] = "text";
 	pack["content"]     = message;
 	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
@@ -233,8 +248,6 @@ hetima.signal.Messenger = function()
     this.transfer = function(pack)
     {
 	return hetima.util.Bencode.decode(pack);
-	//   _this.mBdecoder.decodeArrayBuffer(
-	//    new Uint8Array(pack), 0, pack.byteLength);
     }
 
     //
@@ -248,6 +261,8 @@ hetima.signal.Messenger = function()
 	if(caller == undefined) {return;}
 	var pack = {};
 	pack["messagetype"] = "relay";
+	pack["to"]          = to;
+	pack["from"]        = mMyAddress;
 	pack["contenttype"] = "text";
 	pack["content"]     = message;
 	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
