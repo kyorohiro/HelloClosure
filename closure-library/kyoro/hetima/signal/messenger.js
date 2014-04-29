@@ -295,4 +295,9 @@ hetima.signal.Messenger = function()
 	pack["content"]     = message;
 	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
     };
+
+    this.getCallerList = function()
+    {
+	return _this.mCallerList;
+    };
 }

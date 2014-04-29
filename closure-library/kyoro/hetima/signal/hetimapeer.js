@@ -31,6 +31,7 @@ hetima.signal.HetimaPeer = function()
     {
 	console.log("init()");
 	this.messenger.init();
+	this.addEventListener(this);
     };
 
     //
@@ -40,6 +41,15 @@ hetima.signal.HetimaPeer = function()
     {
 	return this.messenger.mMyAddress;
     };
+
+    //
+    //
+    //
+    this.getCallerList = function()
+    {
+	return this.messenger.getCallerList();
+    }
+
     //
     // registed then, receive notification event from this class.
     //
@@ -73,6 +83,7 @@ hetima.signal.HetimaPeer = function()
 
     //
     // get peer list
+    // request to information near target uuid device.
     //
     this.requestPeerList = function(to, target)
     {
@@ -82,8 +93,20 @@ hetima.signal.HetimaPeer = function()
 
 	var pack = {};
 	pack["messagetype"] = "direct";
+	pack["action"]      = "findnode";
 	pack["from"]        = mMyAddress;
 	pack["to"]          = to;
 	pack["target"]      = target;
     };
+
+
+    this.onCallerReceiveMessage = function(model, caller, message) {
+	console.log("++[hetpeer]+onReceiveMessage:"+message);
+	if(message.action == undefined) {return;}
+	var action = hetima.util.Encoder.toText(message.action);
+	var target = hetima.util.Encoder.toText(message.target);
+	var pack = {};
+	_this.messenger.sendPack(caller.getTargetUUID(), pack);
+    }
+    
 }

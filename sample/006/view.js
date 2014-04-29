@@ -27,7 +27,9 @@ AppView06 = function() {
     this.mSendMessageButton;
     this.mSendMessageField;
     this.mReceiveMessageField;
-    // this.mConnectedAddressComboBox;
+
+    // test ui
+    this.mCallerListButton;
     
     // model 
     this.mModel;
@@ -38,6 +40,7 @@ AppView06 = function() {
 	console.log("initUI()");
 	_this.initHandshakeUI();
 	_this.initSendReceiveUI();
+	_this.initTestUI();
     };
 
     this.setInitValue = function(model) {
@@ -94,6 +97,15 @@ AppView06 = function() {
 
 	_this.mSendMessageButton.onclick = _this.onClickSendMessage;
     };
+
+    //kiyo
+    this.initTestUI = function() {
+	goog.dom.appendChild(document.body, goog.dom.createDom("div", {}, "[[test]]"));
+	_this.mCallerListButton = goog.dom.createDom("input"   , {id:"callerlisttest"  ,type:"button",value:"callerlist"});
+	goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+	goog.dom.appendChild(document.body, _this.mCallerListButton);
+	_this.mCallerListButton.onclick = _this.onClickCallerList;
+    };
     
     this.putItem = function(itemName)
     {
@@ -144,7 +156,16 @@ AppView06 = function() {
 	_this.mModel.sendMessage(addr, message);
     };
 
-    
+    this.onClickCallerList = function() 
+    {
+	console.log("click callerlist---");
+	var list = _this.mModel.getCallerList();
+	for(var i=0;i<list.length();i++)
+	{
+	    console.log("--"+ list.get(i).uuid);
+	}
+	console.log("----- callerlist-----");
+    };
 
     this.mListener = new (function(){
 	this.onError = function(model, event) {
@@ -179,3 +200,4 @@ AppView06 = function() {
 
     
 };
+
