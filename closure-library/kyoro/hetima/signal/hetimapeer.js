@@ -110,6 +110,8 @@ hetima.signal.HetimaPeer = function()
 	var mode = hetima.util.Encoder.toText(message.mode);
 	console.log("+++action="+action+",target="+target+",mode="+mode);
 	if(mode != "request") {
+	    console.log("----------------------sss-"+
+			hetima.util.Encoder.toText(hetima.util.Bencode.encode(message)));
 	    return;
 	}
 	var pack = {};
