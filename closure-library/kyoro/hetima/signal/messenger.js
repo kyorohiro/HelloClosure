@@ -263,21 +263,17 @@ hetima.signal.Messenger = function()
 	if(messagetype == undefined) {
 	    messagetype = "direct";
 	}
-	var callerinfo = _this.mCallerList.findInfo(to);
-	if(callerinfo == undefined) {return;}
-	var caller = callerinfo.content.caller;
-	if(caller == undefined) {return;}
 	var pack = {};
 	pack["messagetype"] = messagetype;
 	pack["content"]     = message;
-	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
+	this.sendPack(to, pack);
     };
 
     this.sendPack = function(to, pack) 
     {
 	var callerinfo = _this.mCallerList.findInfo(to);
 	if(callerinfo == undefined) {return;}
-	var caller = callerinfo.content;
+	var caller = callerinfo.content.caller;
 	if(caller == undefined) {return;}
 	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
     };
@@ -285,7 +281,7 @@ hetima.signal.Messenger = function()
     this.transfer = function(pack)
     {
 	return hetima.util.Bencode.decode(pack);
-    }
+    };
 
     //
     // relay message
@@ -308,4 +304,4 @@ hetima.signal.Messenger = function()
     {
 	return _this.mCallerList;
     };
-}
+};
