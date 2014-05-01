@@ -85,7 +85,7 @@ hetima.signal.HetimaPeer = function()
     // get peer list
     // request to information near target uuid device.
     //
-    this.requestPeerList = function(to, target)
+    this.findnode = function(to, target)
     {
 	if(target == undefined) {
 	    to = target;
@@ -97,6 +97,7 @@ hetima.signal.HetimaPeer = function()
 	pack["from"]        = mMyAddress;
 	pack["to"]          = to;
 	pack["target"]      = target;
+	_this.messenger.sendPack(to, pack);
     };
 
 
@@ -105,8 +106,9 @@ hetima.signal.HetimaPeer = function()
 	if(message.action == undefined) {return;}
 	var action = hetima.util.Encoder.toText(message.action);
 	var target = hetima.util.Encoder.toText(message.target);
+	console.log("+++action="+action+",target="+target);
 	var pack = {};
-	_this.messenger.sendPack(caller.getTargetUUID(), pack);
+//	_this.messenger.sendPack(caller.getTargetUUID(), pack);
     }
     
-}
+};

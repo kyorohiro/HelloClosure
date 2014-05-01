@@ -101,10 +101,18 @@ AppView06 = function() {
     //kiyo
     this.initTestUI = function() {
 	goog.dom.appendChild(document.body, goog.dom.createDom("div", {}, "[[test]]"));
-	_this.mCallerListButton = goog.dom.createDom("input"   , {id:"callerlisttest"  ,type:"button",value:"callerlist"});
-	goog.dom.appendChild(document.body, goog.dom.createDom("br"));
-	goog.dom.appendChild(document.body, _this.mCallerListButton);
-	_this.mCallerListButton.onclick = _this.onClickCallerList;
+	{
+	    _this.mCallerListButton = goog.dom.createDom("input"   , {id:"callerlisttest"  ,type:"button",value:"callerlist"});
+	    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+	    goog.dom.appendChild(document.body, _this.mCallerListButton);
+	    _this.mCallerListButton.onclick = _this.onClickCallerList;
+	}
+	{
+	    _this.mFindNodeButton = goog.dom.createDom("input"   , {id:"findnode"  ,type:"button",value:"findnode"});
+	    goog.dom.appendChild(document.body, goog.dom.createDom("br"));
+	    goog.dom.appendChild(document.body, _this.mFindNodeButton);
+	    _this.mFindNodeButton.onclick = _this.onClickFindNode;
+	}
     };
     
     this.putItem = function(itemName)
@@ -161,6 +169,17 @@ AppView06 = function() {
 	console.log("----- callerlist-----");
     };
 
+    this.onClickFindNode = function() 
+    {
+	console.log("----- click find node -----");
+	var addr = _this.mUnconnectedAddressComboBox.getValue();
+	if(addr == undefined || addr == null || addr == "broadcast") {
+	    return;
+	}
+	var target = _this.mModel.getMyAddress();
+	_this.mModel.findnode(addr, target);
+    };
+
     this.mListener = new (function(){
 	this.onError = function(model, event) {
 	    console.log("++[m]+onError:"+event);
@@ -178,7 +197,6 @@ AppView06 = function() {
 	    console.log("++[m]+onConnect:"+event);
 	    _this.putItem(caller.getTargetUUID());
 	};
-
 	this.onCallerReceiveMessage = function(model, caller, message) {
 	    console.log("++[m]+onReceiveMessage:"+message);
 	    _this.mReceiveMessageField.value = ""+hetima.util.Encoder.toText(message["content"]);
@@ -194,4 +212,3 @@ AppView06 = function() {
 
     
 };
-

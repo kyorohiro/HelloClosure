@@ -211,7 +211,6 @@ hetima.signal.Messenger = function()
 	}
     );
 
-
     //
     // initialize
     // 
@@ -266,7 +265,7 @@ hetima.signal.Messenger = function()
 	var pack = {};
 	pack["messagetype"] = messagetype;
 	pack["content"]     = message;
-	this.sendPack(to, pack);
+	_this.sendPack(to, pack);
     };
 
     this.sendPack = function(to, pack) 
@@ -288,18 +287,17 @@ hetima.signal.Messenger = function()
     //
     this.relayMessage = function(to, relay, message) 
     {
-	var callerinfo = _this.mCallerList.findInfo(relay);
-	if(callerinfo == undefined) {return;}
-	var caller = callerinfo.content.caller;
-	if(caller == undefined) {return;}
 	var pack = {};
 	pack["messagetype"] = "relay";
 	pack["from"]        = mMyAddress;
 	pack["to"]          = to;
 	pack["content"]     = message;
-	caller.sendMessage(hetima.util.Encoder.toText(hetima.util.Bencode.encode(pack)));
+	_this.sendPack(to, pack);
     };
 
+    //
+    // 
+    //
     this.getCallerList = function()
     {
 	return _this.mCallerList;
