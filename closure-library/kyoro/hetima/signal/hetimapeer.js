@@ -94,6 +94,7 @@ hetima.signal.HetimaPeer = function()
 	var pack = {};
 	pack["messagetype"] = "direct";
 	pack["action"]      = "findnode";
+	pack["mode"]        = "request";
 	pack["from"]        = mMyAddress;
 	pack["to"]          = to;
 	pack["target"]      = target;
@@ -106,9 +107,22 @@ hetima.signal.HetimaPeer = function()
 	if(message.action == undefined) {return;}
 	var action = hetima.util.Encoder.toText(message.action);
 	var target = hetima.util.Encoder.toText(message.target);
-	console.log("+++action="+action+",target="+target);
+	var mode = hetima.util.Encoder.toText(message.mode);
+	console.log("+++action="+action+",target="+target+",mode="+mode);
+	if(mode != "request") {
+	    return;
+	}
 	var pack = {};
-//	_this.messenger.sendPack(caller.getTargetUUID(), pack);
+	pack["messagetype"] = "direct";
+	pack["action"]      = "findnode";
+	pack["mode"]        = "response";
+	pack["content"]     = [];
+	var list = _this.getCallerList();
+	for(var i=0;i<list.length();i++)
+	{
+	    pack["content"].push(list.get(i).uuid);
+	}
+	_this.messenger.sendPack(caller.getTargetUUID(), pack);
     }
     
 };
