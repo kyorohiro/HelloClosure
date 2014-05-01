@@ -112,20 +112,14 @@ AppView06 = function() {
 	if(_this.mModel.getMyAddress() == itemName) {
 	    return;
 	}
-	for(var i=0;i<_this.mUnconnectedAddressComboBox.getItemCount();i++)
+	 _this.mUnconnectedAddressComboBox.removeAllItems();
+	var list = _this.mModel.getCallerList();
+	for(var i=0;i<list.length();i++)
 	{
-	    var item = _this.mUnconnectedAddressComboBox.getItemAt(i);
-	    var a = item.mSign;//getContent();
-	    if(a == itemName) {
-		console.log("+SSSSSSSSSSSSSSSS+")
-		return;
-	    }
+	    var item = new goog.ui.ComboBoxItem(list.get(i).uuid);
+	    _this.mUnconnectedAddressComboBox.addItem(item);
+	    _this.mUnconnectedAddressComboBox.addItem(new goog.ui.MenuSeparator());
 	}
-	console.log("+ZZZZZZZZZZZZZZZ+")
-	var item = new goog.ui.ComboBoxItem(itemName);
-	item.mSign = itemName;
-	_this.mUnconnectedAddressComboBox.addItem(new goog.ui.ComboBoxItem(itemName));
-	_this.mUnconnectedAddressComboBox.addItem(new goog.ui.MenuSeparator());
     };
     
     this.onClickStart = function()

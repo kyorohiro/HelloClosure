@@ -30,7 +30,7 @@ hetima.signal.Messenger = function()
     //
     // receive notification event from this class.
     //
-    this.mObserver = new (function(){
+    this.mMessengerObserverList = new (function(){
 	var _own = this;
 	this.decorator = new Array();//undefined;
 	this.onError = function(model, event) {
@@ -111,11 +111,11 @@ hetima.signal.Messenger = function()
 	    var _obj = _this.transfer(message);
 	    var _type = hetima.util.Encoder.toText(_obj["messagetype"]);
 	    if(_type == "direct") {
-		_this.mObserver.onCallerReceiveMessage(_this, caller, _obj);		
+		_this.mMessengerObserverList.onCallerReceiveMessage(_this, caller, _obj);		
 	    } else if( _type == "relay"){
 		var toAddr = _obj["to"];
 		if(toAddr == _this.mMyAddress) {
-		    _this.mObserver.onCallerReceiveMessage(_this, caller, _obj);		
+		    _this.mMessengerObserverList.onCallerReceiveMessage(_this, caller, _obj);		
 		    return;
 		} else {
 		    _this.sendMessage(toAddr, message, "relay"); 
@@ -130,15 +130,15 @@ hetima.signal.Messenger = function()
 	};
 	this.onNotifyError = function (caller, error){
 	    console.log("++[c]+onError:"+error.toString());
-	    _this.mObserver.onCallerError(_this, caller, error);
+	    _this.mMessengerObserverList.onCallerError(_this, caller, error);
 	}
 	this.onOpen = function(caller,event){
 	    console.log("++[c]+onOpen:"+event);
-	    _this.mObserver.onCallerOpen(_this, caller, event);
+	    _this.mMessengerObserverList.onCallerOpen(_this, caller, event);
 	}
 	this.onClose = function(caller,event){
 	    console.log("++[c]+onClose:"+event);
-	    _this.mObserver.onCallerClose(_this, caller, event);
+	    _this.mMessengerObserverList.onCallerClose(_this, caller, event);
 	}
     });
     
@@ -162,7 +162,11 @@ hetima.signal.Messenger = function()
 	{
 	    this.onJoinNetwork = function(v) {
 		console.log("++[s]+onJoinNetwork(si)\n");
-		_this.mObserver.onFind(_this, v["from"]);
+		var content = {};
+		if(_this.mMyAddress != v.from) {
+		    _this.mCallerList.add(v.from, content);
+		    _this.mMessengerObserverList.onFind(_this, v["from"]);
+		}
 	    };
 	    
 	    this.onReceiveMessage = function(message) {
@@ -173,7 +177,7 @@ hetima.signal.Messenger = function()
 		}
 		else if("answer" == message.contentType) {
 		    var callerinfo = _this.mCallerList.findInfo(message["from"]);
-		    var caller = callerinfo.content;
+		    var caller = callerinfo.content.caller;
 		    caller.setRemoteSDP("answer", hetima.util.Encoder.toText(message.content));
 		}
 		else if("offer" == message.contentType) {
@@ -183,17 +187,19 @@ hetima.signal.Messenger = function()
 			caller = new hetima.signal.Caller(_this.mMyAddress).setTargetUUID(message["from"]);
 			caller.setEventListener(_this.mCallerObserver);
 			caller.setSignalClient(_this.mSignalClientAdapter);
-			_this.mCallerList.add(message["from"], caller);
+			var content = {};
+			content.caller = caller;
+			_this.mCallerList.add(message["from"], content);
 			caller.createPeerConnection();
 		    } else {
-			caller = callerinfo.content;
+			caller = callerinfo.content.caller;
 		    }
 		    caller.setRemoteSDP("offer", hetima.util.Encoder.toText(message.content));
 		    caller.createAnswer();
 		}
 		else if("candidate" == message.contentType) {
 		    var callerinfo = _this.mCallerList.findInfo(message["from"]);
-		    var caller = callerinfo.content;
+		    var caller = callerinfo.content.caller;
 		    caller.addIceCandidate(
 			hetima.util.BencodeHelper.buffer2Text(message.content));
 		}
@@ -223,7 +229,7 @@ hetima.signal.Messenger = function()
     // registed then, receive notification event from this class.
     //
     this.addEventListener = function(observer) {
-	_this.mObserver.decorator.push(observer);
+	_this.mMessengerObserverList.decorator.push(observer);
     };
 
     //
@@ -242,7 +248,9 @@ hetima.signal.Messenger = function()
 	var caller = new hetima.signal.Caller(_this.mMyAddress).setTargetUUID(to);
 	caller.setEventListener(_this.mCallerObserver);
 	caller.setSignalClient(_this.mSignalClientAdapter);
-	_this.mCallerList.add(to, caller);
+	var content = {};
+	content.caller = caller;
+	_this.mCallerList.add(to, content);
 	caller.createPeerConnection();
 	caller.createOffer();
     };
@@ -257,7 +265,7 @@ hetima.signal.Messenger = function()
 	}
 	var callerinfo = _this.mCallerList.findInfo(to);
 	if(callerinfo == undefined) {return;}
-	var caller = callerinfo.content;
+	var caller = callerinfo.content.caller;
 	if(caller == undefined) {return;}
 	var pack = {};
 	pack["messagetype"] = messagetype;
@@ -286,7 +294,7 @@ hetima.signal.Messenger = function()
     {
 	var callerinfo = _this.mCallerList.findInfo(relay);
 	if(callerinfo == undefined) {return;}
-	var caller = callerinfo.content;
+	var caller = callerinfo.content.caller;
 	if(caller == undefined) {return;}
 	var pack = {};
 	pack["messagetype"] = "relay";
