@@ -33,6 +33,15 @@ hetima.signal.UserInfo = function (num) {
 	}
     };
 
+    this.contain = function(uuid) {
+	var index = this.find(uuid);
+	if(index == -1) {
+	    return false;
+	} else {
+	    return true;
+	}
+    }
+
     this.find = function (uuid) {
 	for(var i=0;i<this.mList.length;i++) {
 	    console.log("----" + this.mList[i].uuid+","+uuid);

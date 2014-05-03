@@ -163,6 +163,7 @@ hetima.signal.Messenger = function()
 	    this.onJoinNetwork = function(v) {
 		console.log("++[s]+onJoinNetwork(si)\n");
 		var content = {};
+		content.relay = "server";
 		if(_this.mMyAddress != v.from) {
 		    _this.mCallerList.add(v.from, content);
 		    _this.mMessengerObserverList.onFind(_this, v["from"]);
@@ -189,6 +190,7 @@ hetima.signal.Messenger = function()
 			caller.setSignalClient(_this.mSignalClientAdapter);
 			var content = {};
 			content.caller = caller;
+			content.relay = "direct";
 			_this.mCallerList.add(message["from"], content);
 			caller.createPeerConnection();
 		    } else {
@@ -302,4 +304,5 @@ hetima.signal.Messenger = function()
     {
 	return _this.mCallerList;
     };
+
 };

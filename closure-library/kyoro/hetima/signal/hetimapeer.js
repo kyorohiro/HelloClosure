@@ -109,11 +109,35 @@ hetima.signal.HetimaPeer = function()
 	var target = hetima.util.Encoder.toText(message.target);
 	var mode = hetima.util.Encoder.toText(message.mode);
 	console.log("+++action="+action+",target="+target+",mode="+mode);
-	if(mode != "request") {
-	    console.log("----------------------sss-"+
-			hetima.util.Encoder.toText(hetima.util.Bencode.encode(message)));
+	if(mode == "response") {
+	    if(action == "findnode") {
+		var callerlist = _this.messenger.getCallerList();
+		var list = message.content;
+		if(list != undefined) {
+		    for(var i=0;i<list.length;i++)
+		    {
+			var content = {};
+			var uuid = hetima.util.Encoder.toText(list[i]);
+			content.relay = ""+caller.getTargetUUID();
+			if(callerlist.contain(uuid) == false) { 
+			    callerlist.add(uuid, content);
+			}
+		    }
+		}
+	    }
 	    return;
 	}
+	else if(mode == "request") {
+	    if(action == "findnode") {
+		_this.responseFindnode(caller.getTargetUUID());
+	    }
+	    return;
+	}
+
+    }
+
+    this.responseFindnode = function(to)
+    {
 	var pack = {};
 	pack["messagetype"] = "direct";
 	pack["action"]      = "findnode";
@@ -124,7 +148,7 @@ hetima.signal.HetimaPeer = function()
 	{
 	    pack["content"].push(list.get(i).uuid);
 	}
-	_this.messenger.sendPack(caller.getTargetUUID(), pack);
-    }
+	_this.messenger.sendPack(to, pack);
+    };
     
 };
